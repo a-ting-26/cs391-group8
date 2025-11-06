@@ -4,7 +4,7 @@ import NavBar from "./components/NavBar";
 import Hero from "./components/Hero";
 import PromoFast from "./components/PromoFast";
 import FeatureCarousel from "./components/FeatureCarousel";
-import ClosingReveal from "./components/ClosingReveal";
+//import ClosingReveal from "./components/ClosingReveal";
 
 export default function LandingPage() {
   return (

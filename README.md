@@ -112,3 +112,4 @@ Vendor analytics dashboard (food waste reduction stats).
 Student rewards or loyalty points for participation.
 
 Admin dashboard for event moderation.
+
