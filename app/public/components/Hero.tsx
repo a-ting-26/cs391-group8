@@ -11,7 +11,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-6 pt-12 pb-10 text-center">
+    <section className="mx-auto flex h-screen max-w-7xl flex-col items-center justify-center px-6 text-center overflow-hidden">
       <h1
         className="mx-auto mb-10 max-w-7xl text-6xl font-extrabold leading-[0.95] tracking-tight text-emerald-900 sm:text-8xl md:text-9xl"
         style={{ fontFamily: "var(--font-display)" }}
