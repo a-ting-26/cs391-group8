@@ -5,6 +5,17 @@
   --foreground: #171717;
 }
 
+input::placeholder,
+textarea::placeholder {
+  @apply text-gray-400;
+}
+
+input,
+textarea {
+  @apply text-gray-800 placeholder-gray-400;
+}
+
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
