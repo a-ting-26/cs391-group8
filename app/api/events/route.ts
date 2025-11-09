@@ -43,7 +43,28 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ events: data || [] });
+    // Recalculate availability status for each event (can change over time)
+    const now = new Date();
+    const eventsWithUpdatedAvailability = (data || []).map((event: any) => {
+      const start = new Date(event.start_time);
+      const end = new Date(event.end_time);
+      let availability = "available-soon";
+      
+      if (now >= start && now <= end) {
+        availability = "available-now";
+      } else if (now > end) {
+        availability = "ending-soon"; // Actually ended, but we'll filter this on client
+      } else if (now < start) {
+        availability = "available-soon";
+      }
+
+      return {
+        ...event,
+        availability,
+      };
+    });
+
+    return NextResponse.json({ events: eventsWithUpdatedAvailability });
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || "Internal server error" },
