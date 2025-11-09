@@ -1,8 +1,11 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { supabaseBrowser } from "@/lib/supabase/client";
 
-export default function FeedNavBar() {
+export default function VendorNavBar() {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -30,7 +33,7 @@ export default function FeedNavBar() {
   }, [isMenuOpen]);
 
   return (
-    <nav className="sticky top-0 z-50 mx-auto flex w-full items-center justify-between bg-[#f9f8f4] px-6 py-5 backdrop-blur-0">
+    <nav className="mx-auto flex w-full items-center justify-between bg-[#f9f8f4] px-6 py-5 backdrop-blur-0">
       <Link
         href="/landing"
         className="text-3xl font-black uppercase tracking-widest text-emerald-900 transition-transform hover:scale-105"
@@ -74,9 +77,11 @@ export default function FeedNavBar() {
               PROFILE
             </Link>
             <button
-              onClick={() => {
-                // TODO: Implement logout functionality
+              onClick={async () => {
                 setIsMenuOpen(false);
+                const supabase = supabaseBrowser();
+                await supabase.auth.signOut();
+                router.push("/auth/login");
               }}
               className="rounded-full border-[3px] border-emerald-900 bg-white px-6 py-3 text-center text-sm font-black uppercase tracking-wider text-emerald-900 shadow-[0_5px_0_0_rgba(16,78,61,0.4)] transition-all hover:-translate-y-1 hover:bg-red-50 hover:text-red-700 hover:shadow-[0_7px_0_0_rgba(16,78,61,0.5)] active:translate-y-0"
             >

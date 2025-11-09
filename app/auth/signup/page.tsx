@@ -1,17 +1,18 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { supabaseBrowser } from '@/lib/supabase/client';
 
 export default function SignUpPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     confirmPassword: '',
-    allergies: '',
-    dietaryRestrictions: ''
+    role: 'student', // 'student' or 'vendor'
   });
   const [errors, setErrors] = useState({
     email: '',
@@ -20,6 +21,14 @@ export default function SignUpPage() {
     general: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+
+  // Set role from URL query parameter if present
+  useEffect(() => {
+    const roleParam = searchParams.get('role');
+    if (roleParam === 'vendor' || roleParam === 'student') {
+      setFormData(prev => ({ ...prev, role: roleParam }));
+    }
+  }, [searchParams]);
 
   const validateBUEmail = (email: string): boolean =>
     /^[a-zA-Z0-9._%+-]+@bu\.edu$/.test(email);
@@ -62,15 +71,13 @@ export default function SignUpPage() {
     try {
       const supabase = supabaseBrowser();
 
-      // Sign up with metadata (allergies/dietaryRestrictions)
+      // Sign up with metadata (role)
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
           data: {
-            role: 'student', // or set later; adjust if you use a profiles table
-            allergies: formData.allergies || null,
-            dietaryRestrictions: formData.dietaryRestrictions || null,
+            role: formData.role, // 'student' or 'vendor'
           },
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
@@ -79,8 +86,12 @@ export default function SignUpPage() {
       if (error) throw new Error(error.message);
 
       // If email confirmations are enabled, user must check inbox
-      // Route to a success screen or back to login
-      router.replace('/public?checkEmail=1'); // or router.push('/login')
+      // Route based on role
+      if (formData.role === 'vendor') {
+        router.replace('/vendor');
+      } else {
+        router.replace('/landing?checkEmail=1');
+      }
     } catch (err: any) {
       setErrors(prev => ({
         ...prev,
@@ -92,22 +103,29 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-red-600 to-red-800 px-4 py-12">
+    <div className="min-h-screen w-full bg-[#8EDFA4] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         {/* Logo/Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-white mb-2">BU Spark!Bytes</h1>
-          <p className="text-red-100">Sign up to find free food on campus</p>
+          <h1 
+            className="text-5xl font-black uppercase tracking-widest text-emerald-900 mb-4"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            SparkBytes!
+          </h1>
+          <p className="text-lg font-semibold text-emerald-800">Sign up to find free food on campus</p>
         </div>
 
         {/* Sign Up Form */}
-        <div className="bg-white rounded-lg shadow-xl p-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6">Create Account</h2>
+        <div className="bg-white rounded-[20px] border-[3px] border-emerald-900 shadow-[0_8px_0_0_rgba(16,78,61,0.3)] p-8">
+          <h2 className="text-3xl font-black uppercase tracking-wide text-emerald-900 mb-6" style={{ fontFamily: "var(--font-display)" }}>
+            Create Account
+          </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-bold text-emerald-900 mb-2">
                 BU Email Address *
               </label>
               <input
@@ -117,17 +135,17 @@ export default function SignUpPage() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="yourname@bu.edu"
-                className={`w-full px-4 py-2 border rounded-lg text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-3 border-[2px] rounded-[12px] text-emerald-900 placeholder-emerald-400 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-900 outline-none transition ${
+                  errors.email ? 'border-red-500' : 'border-emerald-700'
                 }`}
                 required
               />
-              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+              {errors.email && <p className="mt-2 text-sm font-semibold text-red-600">{errors.email}</p>}
             </div>
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-bold text-emerald-900 mb-2">
                 Password *
               </label>
               <input
@@ -137,20 +155,20 @@ export default function SignUpPage() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter password"
-                className={`w-full px-4 py-2 border rounded-lg text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-3 border-[2px] rounded-[12px] text-emerald-900 placeholder-emerald-400 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-900 outline-none transition ${
+                  errors.password ? 'border-red-500' : 'border-emerald-700'
                 }`}
                 required
               />
-              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
-              <p className="mt-1 text-xs text-gray-500">
+              {errors.password && <p className="mt-2 text-sm font-semibold text-red-600">{errors.password}</p>}
+              <p className="mt-2 text-xs font-medium text-emerald-700">
                 Must be 8+ characters with uppercase, lowercase, and number
               </p>
             </div>
 
             {/* Confirm Password Field */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="confirmPassword" className="block text-sm font-bold text-emerald-900 mb-2">
                 Confirm Password *
               </label>
               <input
@@ -160,50 +178,49 @@ export default function SignUpPage() {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 placeholder="Re-enter password"
-                className={`w-full px-4 py-2 border rounded-lg text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition ${
-                  errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-3 border-[2px] rounded-[12px] text-emerald-900 placeholder-emerald-400 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-900 outline-none transition ${
+                  errors.confirmPassword ? 'border-red-500' : 'border-emerald-700'
                 }`}
                 required
               />
-              {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
+              {errors.confirmPassword && <p className="mt-2 text-sm font-semibold text-red-600">{errors.confirmPassword}</p>}
             </div>
 
-            {/* Allergies Field */}
+            {/* Role Selection */}
             <div>
-              <label htmlFor="allergies" className="block text-sm font-medium text-gray-700 mb-1">
-                Allergies (Optional)
+              <label className="block text-sm font-bold text-emerald-900 mb-3">
+                I am signing up as: *
               </label>
-              <textarea
-                id="allergies"
-                name="allergies"
-                value={formData.allergies}
-                onChange={handleChange}
-                placeholder="e.g., Peanuts, Tree nuts, Shellfish..."
-                rows={2}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition resize-none"
-              />
-            </div>
-
-            {/* Dietary Restrictions Field */}
-            <div>
-              <label htmlFor="dietaryRestrictions" className="block text-sm font-medium text-gray-700 mb-1">
-                Dietary Restrictions (Optional)
-              </label>
-              <textarea
-                id="dietaryRestrictions"
-                name="dietaryRestrictions"
-                value={formData.dietaryRestrictions}
-                onChange={handleChange}
-                placeholder="e.g., Vegetarian, Vegan, Gluten-free, Halal, Kosher..."
-                rows={2}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition resize-none"
-              />
+              <div className="flex gap-4">
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="student"
+                    checked={formData.role === 'student'}
+                    onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
+                    className="mr-2 h-5 w-5 text-emerald-900 focus:ring-emerald-500 border-emerald-700"
+                  />
+                  <span className="text-emerald-900 font-semibold">Student</span>
+                </label>
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="vendor"
+                    checked={formData.role === 'vendor'}
+                    onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
+                    className="mr-2 h-5 w-5 text-emerald-900 focus:ring-emerald-500 border-emerald-700"
+                  />
+                  <span className="text-emerald-900 font-semibold">Organizer/Vendor</span>
+                </label>
+              </div>
             </div>
 
             {/* General Error Message */}
             {errors.general && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{errors.general}</p>
+              <div className="p-4 bg-red-50 border-[2px] border-red-500 rounded-[12px]">
+                <p className="text-sm font-semibold text-red-700">{errors.general}</p>
               </div>
             )}
 
@@ -211,10 +228,10 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors ${
+              className={`w-full py-4 px-6 rounded-full border-[3px] border-emerald-900 font-black uppercase tracking-wider text-lg transition-all ${
                 isLoading
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-red-600 hover:bg-red-700 active:bg-red-800'
+                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed border-gray-400'
+                  : 'bg-[#FEF3C7] text-emerald-900 shadow-[0_6px_0_0_rgba(16,78,61,0.4)] hover:-translate-y-1 hover:shadow-[0_8px_0_0_rgba(16,78,61,0.5)] hover:bg-[#FDE68A] active:translate-y-0'
               }`}
             >
               {isLoading ? 'Creating Account...' : 'Sign Up'}
@@ -223,17 +240,17 @@ export default function SignUpPage() {
 
           {/* Login Link */}
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm font-semibold text-emerald-800">
               Already have an account?{' '}
-              <a href="/login" className="text-red-600 hover:text-red-700 font-semibold">
+              <Link href="/auth/login" className="text-emerald-900 hover:text-emerald-700 font-black underline">
                 Log in
-              </a>
+              </Link>
             </p>
           </div>
         </div>
 
         {/* Footer Note */}
-        <p className="mt-6 text-center text-sm text-red-100">
+        <p className="mt-6 text-center text-sm font-semibold text-emerald-800">
           Only BU students and faculty can sign up
         </p>
       </div>

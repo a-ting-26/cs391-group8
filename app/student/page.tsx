@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import FeedNavBar from "./components/FeedNavBar";
+import StudentNavBar from "./components/StudentNavBar";
 import SearchBar from "./components/SearchBar";
 import OrganizerCard from "./components/OrganizerCard";
 
@@ -74,7 +74,7 @@ const mockOrganizers = [
   },
 ];
 
-export default function FeedPage() {
+export default function StudentPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [availability, setAvailability] = useState("");
   const [dietary, setDietary] = useState<string[]>([]);
@@ -136,7 +136,7 @@ export default function FeedPage() {
 
   return (
     <div className="min-h-screen w-full bg-[#f9f8f4]">
-      <FeedNavBar />
+      <StudentNavBar />
       
       <main className="mx-auto max-w-7xl px-6 py-8">
         {/* Top Section - Search and Filters */}
