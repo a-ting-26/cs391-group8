@@ -29,12 +29,12 @@ export default function Hero() {
         </button>
 
         {/* Organizer Button */}
-        <a
-          href="/auth/vendor-signup" // optional future link for organizers
+        <button
+          onClick={() => router.push("/auth/signup?role=vendor")}
           className="rounded-full border-[3px] border-emerald-900 bg-[#DBEAFE] px-12 py-5 text-xl font-black uppercase tracking-widest text-emerald-900 shadow-[0_7px_0_0_rgba(16,78,61,0.6)] transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:shadow-[0_10px_0_0_rgba(16,78,61,0.7)] hover:bg-[#BFDBFE] active:translate-y-0"
         >
           I am an Organizer
-        </a>
+        </button>
       </div>
     </section>
   );
