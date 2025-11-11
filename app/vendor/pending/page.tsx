@@ -1,5 +1,12 @@
 // app/organizer/pending/page.tsx
-export default function OrganizerPendingPage() {
+import { redirect } from "next/navigation";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+export default async function OrganizerPendingPage() {
+  const supabase = await createSupabaseServerClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/landing");
     return (
       <div className="min-h-screen grid place-items-center bg-emerald-50 px-6">
         <div className="max-w-xl w-full bg-white rounded-xl shadow p-8 text-center">
