@@ -1,11 +1,14 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { supabaseBrowser } from "@/lib/supabase/client";
 
 export default function FeedNavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const router = useRouter();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -29,16 +32,28 @@ export default function FeedNavBar() {
     };
   }, [isMenuOpen]);
 
+  // 🚪 Logout handler
+  const handleLogout = async () => {
+    try {
+      const supabase = supabaseBrowser();
+      await supabase.auth.signOut(); // clear session + cookies
+      setIsMenuOpen(false);
+      router.replace("/public"); // redirect back to landing page
+    } catch (err) {
+      console.error("Error logging out:", err);
+    }
+  };
+
   return (
     <nav className="sticky top-0 z-50 mx-auto flex w-full items-center justify-between bg-[#f9f8f4] px-6 py-5 backdrop-blur-0">
       <Link
-        href="/landing"
+        href="/public"
         className="text-3xl font-black uppercase tracking-widest text-emerald-900 transition-transform hover:scale-105"
         style={{ fontFamily: "var(--font-display)" }}
       >
         SparkBytes!
       </Link>
-      
+
       <div className="relative">
         {/* Hamburger/Sandwich Icon Button */}
         <button
@@ -73,11 +88,10 @@ export default function FeedNavBar() {
             >
               PROFILE
             </Link>
+
+            {/* ✅ Logout button now functional */}
             <button
-              onClick={() => {
-                // TODO: Implement logout functionality
-                setIsMenuOpen(false);
-              }}
+              onClick={handleLogout}
               className="rounded-full border-[3px] border-emerald-900 bg-white px-6 py-3 text-center text-sm font-black uppercase tracking-wider text-emerald-900 shadow-[0_5px_0_0_rgba(16,78,61,0.4)] transition-all hover:-translate-y-1 hover:bg-red-50 hover:text-red-700 hover:shadow-[0_7px_0_0_rgba(16,78,61,0.5)] active:translate-y-0"
             >
               LOGOUT
@@ -88,4 +102,3 @@ export default function FeedNavBar() {
     </nav>
   );
 }
-
