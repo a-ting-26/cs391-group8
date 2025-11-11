@@ -2,6 +2,7 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import AdminPendingList from "./AdminPendingList";
+import AdminApprovedList from "./AdminApprovedList";
 
 export default async function AdminPage() {
   const supabase = await createSupabaseServerClient();
@@ -18,26 +19,33 @@ export default async function AdminPage() {
   const isAdmin = Array.isArray(profile?.roles) && profile!.roles.includes("admin");
   if (!isAdmin) redirect("/landing?authError=Admins%20only");
 
-  const { data: pending, error: appErr } = await supabase
+  // Pending applications
+  const { data: pendingRaw } = await supabase
     .from("organizer_applications")
     .select("id, org_name, contact_email, website, description, status, created_at")
     .eq("status", "pending")
     .order("created_at", { ascending: true });
+  const pending = pendingRaw ?? [];
 
-  const items = (pending ?? []) as {
-    id: string;
-    org_name: string;
-    contact_email: string;
-    website: string | null;
-    description: string;
-    status: "pending" | "approved" | "rejected";
-    created_at: string;
-  }[];
+  // Approved vendors (active)
+  const { data: approvedRaw } = await supabase
+    .from("vendor_profiles")
+    .select("id, org_name, contact_email, website, is_active, updated_at")
+    .eq("is_active", true)
+    .order("updated_at", { ascending: false });
+  const approved = approvedRaw ?? [];
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="mb-6 text-3xl font-bold text-emerald-900">Admin — Pending Organizers</h1>
-      <AdminPendingList initialItems={items} />
+    <div className="mx-auto max-w-5xl px-6 py-10 space-y-10">
+      <section>
+        <h1 className="mb-6 text-3xl font-bold text-emerald-900">Admin — Pending Organizers</h1>
+        <AdminPendingList initialItems={pending} />
+      </section>
+
+      <section>
+        <h2 className="mt-10 mb-4 text-2xl font-bold text-emerald-900">Approved Organizers</h2>
+        <AdminApprovedList initialItems={approved} />
+      </section>
     </div>
   );
 }

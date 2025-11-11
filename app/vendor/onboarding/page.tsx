@@ -1,7 +1,7 @@
 // app/organizer/onboarding/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
@@ -18,6 +18,7 @@ export default function OrganizerOnboardingPage() {
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
+  const [status, setStatus] = useState<"pending" | "approved" | "rejected" | null>(null);
 
   const [form, setForm] = useState<FormState>({
     org_name: "",
@@ -26,11 +27,22 @@ export default function OrganizerOnboardingPage() {
     contact_email: "",
   });
 
+  const rejectedNotice = useMemo(
+    () =>
+      status === "rejected" ? (
+        <div className="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Your previous application was <b>rejected</b>. You can update your information and resubmit
+          for review. If you have questions, contact the admin team.
+        </div>
+      ) : null,
+    [status]
+  );
+
   useEffect(() => {
     (async () => {
       const supabase = supabaseBrowser();
 
-      // If already signed-in, skip PKCE; else only exchange when `?code=` exists
+      // Session check (skip PKCE if already logged in)
       const firstCheck = await supabase.auth.getUser();
       let user = firstCheck.data.user;
 
@@ -48,8 +60,9 @@ export default function OrganizerOnboardingPage() {
         url.searchParams.delete("code");
         url.searchParams.delete("state");
         window.history.replaceState({}, "", url.toString());
-        const afterExchange = await supabase.auth.getUser();
-        user = afterExchange.data.user;
+
+        const after = await supabase.auth.getUser();
+        user = after.data.user;
       }
 
       // No session → back to landing
@@ -58,27 +71,25 @@ export default function OrganizerOnboardingPage() {
         return;
       }
 
-      // BU domain guard
+      // BU guard
       if (!user.email?.toLowerCase().endsWith("@bu.edu")) {
         await supabase.auth.signOut();
         router.replace("/landing?authError=Please%20use%20your%20%40bu.edu%20account");
         return;
       }
 
-      // Ensure roles array in user metadata contains "organizer"
+      // Ensure roles array in user metadata contains "organizer" (non-fatal)
       const currentRoles: string[] = Array.isArray(user.user_metadata?.roles)
         ? (user.user_metadata.roles as string[])
         : [];
       if (!currentRoles.includes("organizer")) {
-        await supabase.auth
-          .updateUser({ data: { roles: [...currentRoles, "organizer"] } })
-          .catch(() => {});
+        await supabase.auth.updateUser({ data: { roles: [...currentRoles, "organizer"] } }).catch(() => {});
       }
 
       setEmail(user.email ?? null);
       setForm((f) => ({ ...f, contact_email: user?.email ?? "" }));
 
-      // If an application already exists, route accordingly or prefill
+      // Fetch existing application (if any)
       const { data: existing, error: qErr } = await supabase
         .from("organizer_applications")
         .select("status, org_name, description, website, contact_email")
@@ -86,6 +97,8 @@ export default function OrganizerOnboardingPage() {
         .maybeSingle();
 
       if (!qErr && existing) {
+        setStatus(existing.status as typeof status);
+
         if (existing.status === "approved") {
           router.replace("/vendor/dashboard");
           return;
@@ -94,13 +107,15 @@ export default function OrganizerOnboardingPage() {
           router.replace("/vendor/pending");
           return;
         }
-        // status could be 'rejected' or you may allow editing → prefill fields
+        // rejected → stay here and prefill
         setForm({
           org_name: existing.org_name ?? "",
           description: existing.description ?? "",
           website: existing.website ?? "",
           contact_email: existing.contact_email ?? user.email ?? "",
         });
+      } else {
+        setStatus(null);
       }
 
       // Clean any leftover OAuth params if user exists
@@ -127,24 +142,33 @@ export default function OrganizerOnboardingPage() {
         return;
       }
 
-      // Simple client validation
-      if (!form.org_name.trim() || !form.description.trim() || !form.contact_email.trim()) {
+      // Minimal client validation
+      const orgName = form.org_name.trim();
+      const description = form.description.trim();
+      const contact = (form.contact_email || "").trim();
+      const website = (form.website || "").trim();
+
+      if (!orgName || !description || !contact) {
         setErr("Please fill out all required fields.");
         setSaving(false);
         return;
       }
 
-      // Upsert organizer application → set to pending
+      // Optional website normalization
+      const normalizedWebsite =
+        website && !/^https?:\/\//i.test(website) ? `https://${website}` : website;
+
+      // Upsert organizer application → set to pending (works for first-time and resubmit)
       const { error } = await supabase
         .from("organizer_applications")
         .upsert(
           {
             id: user.id,
-            org_name: form.org_name.trim(),
-            description: form.description.trim(),
-            website: form.website.trim(),
-            contact_email: form.contact_email.trim() || user.email,
-            status: "pending",
+            org_name: orgName,
+            description,
+            website: normalizedWebsite || null,
+            contact_email: contact || user.email,
+            status: "pending", // With the DB trigger change, rejected -> pending is allowed
           },
           { onConflict: "id" }
         );
@@ -174,6 +198,8 @@ export default function OrganizerOnboardingPage() {
         <p className="text-sm text-gray-600 mb-6">
           Signed in as <span className="font-medium">{email}</span>. Submit your organization details for admin approval.
         </p>
+
+        {rejectedNotice}
 
         <div className="grid grid-cols-1 gap-5">
           {/* Organization Name */}
@@ -252,7 +278,7 @@ export default function OrganizerOnboardingPage() {
             disabled={saving}
             className="rounded-lg bg-emerald-600 px-5 py-2 font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
           >
-            {saving ? "Submitting…" : "Submit for Approval"}
+            {saving ? "Submitting…" : status === "rejected" ? "Resubmit for Approval" : "Submit for Approval"}
           </button>
         </div>
       </form>
