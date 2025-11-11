@@ -7,7 +7,7 @@ export default async function AdminPage() {
   const supabase = await createSupabaseServerClient();
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/public");
+  if (!user) redirect("/landing");
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -16,7 +16,7 @@ export default async function AdminPage() {
     .maybeSingle();
 
   const isAdmin = Array.isArray(profile?.roles) && profile!.roles.includes("admin");
-  if (!isAdmin) redirect("/public?authError=Admins%20only");
+  if (!isAdmin) redirect("/landing?authError=Admins%20only");
 
   const { data: pending, error: appErr } = await supabase
     .from("organizer_applications")
