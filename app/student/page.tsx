@@ -1,97 +1,137 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import StudentNavBar from "./components/StudentNavBar";
 import SearchBar from "./components/SearchBar";
 import OrganizerCard from "./components/OrganizerCard";
 
-// Mock data - replace with API calls later
-const mockOrganizers = [
-  {
-    id: 1,
-    name: "BU Dining Services",
-    location: "central-campus",
-    locationLabel: "Central Campus",
-    availableFood: "Pizza, Sandwiches, Salads",
-    timeLeft: "2 hours",
-    availability: "available-now",
-    category: "Lunch",
-    dietaryTags: ["Vegetarian", "Gluten-free"],
-    featuredPhoto: "/images/food1.jpg",
-    description: "Leftover catering from orientation event",
-  },
-  {
-    id: 2,
-    name: "Campus Events Committee",
-    location: "george-sherman-union",
-    locationLabel: "George Sherman Union",
-    availableFood: "Pasta, Bread, Desserts",
-    timeLeft: "4 hours",
-    availability: "available-soon",
-    category: "Dinner",
-    dietaryTags: ["Vegetarian", "Vegan"],
-    featuredPhoto: "/images/food2.jpg",
-    description: "Post-conference refreshments available",
-  },
-  {
-    id: 3,
-    name: "Student Activities",
-    location: "east-campus",
-    locationLabel: "East Campus",
-    availableFood: "Wraps, Fruit, Beverages",
-    timeLeft: "1 hour",
-    availability: "ending-soon",
-    category: "Snacks",
-    dietaryTags: ["Vegan", "Gluten-free"],
-    featuredPhoto: "/images/food3.jpg",
-    description: "End of semester celebration leftovers",
-  },
-  {
-    id: 4,
-    name: "BU Sustainability",
-    location: "west-campus",
-    locationLabel: "West Campus",
-    availableFood: "Veggie Bowls, Smoothies",
-    timeLeft: "3 hours",
-    availability: "available-now",
-    category: "Lunch",
-    dietaryTags: ["Vegan", "Vegetarian", "Halal"],
-    featuredPhoto: "/images/food4.jpg",
-    description: "Sustainable food event leftovers",
-  },
-  {
-    id: 5,
-    name: "Fenway Events",
-    location: "fenway-campus",
-    locationLabel: "Fenway Campus",
-    availableFood: "Catered Buffet",
-    timeLeft: "5 hours",
-    availability: "available-soon",
-    category: "Dinner",
-    dietaryTags: ["Vegetarian", "Dairy-free"],
-    featuredPhoto: "/images/food5.jpg",
-    description: "Conference closing reception",
-  },
-];
+interface Event {
+  id: string;
+  organizer_name: string;
+  location: string;
+  location_label: string;
+  available_food: string;
+  category: string;
+  dietary_tags: string[];
+  description?: string;
+  featured_photo?: string;
+  start_time: string;
+  end_time: string;
+  availability: string;
+  created_at: string;
+}
+
+interface Organizer {
+  id: string | number;
+  name: string;
+  location: string;
+  locationLabel: string;
+  availableFood: string;
+  timeLeft: string;
+  category: string;
+  dietaryTags: string[];
+  featuredPhoto?: string;
+  description?: string;
+}
+
+// Calculate time left from end_time
+const calculateTimeLeft = (endTime: string): string => {
+  const now = new Date();
+  const end = new Date(endTime);
+  const diffMs = end.getTime() - now.getTime();
+  
+  if (diffMs < 0) {
+    return "Ended";
+  }
+  
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  
+  if (diffHours > 0) {
+    return `${diffHours} hour${diffHours === 1 ? "" : "s"}`;
+  } else if (diffMins > 0) {
+    return `${diffMins} min${diffMins === 1 ? "" : "s"}`;
+  } else {
+    return "Less than 1 min";
+  }
+};
+
+// Convert Event API response to OrganizerCardProps format
+const eventToOrganizer = (event: Event): Organizer => {
+  return {
+    id: event.id,
+    name: event.organizer_name,
+    location: event.location,
+    locationLabel: event.location_label,
+    availableFood: event.available_food,
+    timeLeft: calculateTimeLeft(event.end_time),
+    category: event.category,
+    dietaryTags: event.dietary_tags || [],
+    featuredPhoto: event.featured_photo,
+    description: event.description,
+  };
+};
 
 export default function StudentPage() {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [availability, setAvailability] = useState("");
   const [dietary, setDietary] = useState<string[]>([]);
   const [location, setLocation] = useState("");
   const [sorting, setSorting] = useState("");
-  const [expandedOrganizerId, setExpandedOrganizerId] = useState<number | null>(null);
+  const [expandedOrganizerId, setExpandedOrganizerId] = useState<string | number | null>(null);
+
+  // Fetch events from API
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch("/api/events", {
+        credentials: "include",
+      });
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch events");
+      }
+      
+      setEvents(data.events || []);
+    } catch (err: any) {
+      setError(err.message || "Failed to load events");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+    // Refresh events every 30 seconds to update time left
+    const interval = setInterval(() => {
+      fetchEvents();
+    }, 30000);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
   };
 
-  const handleCardClick = (organizerId: number) => {
+  const handleCardClick = (organizerId: string | number) => {
     setExpandedOrganizerId(expandedOrganizerId === organizerId ? null : organizerId);
   };
 
+  // Filter events: only show current events (end_time in future)
+  const now = new Date();
+  const currentEvents = events.filter((event) => new Date(event.end_time) >= now);
+
+  // Convert to Organizer format
+  const organizers = currentEvents.map(eventToOrganizer);
+
   // Filter organizers based on search and filters
-  let filteredOrganizers = mockOrganizers.filter((organizer) => {
+  let filteredOrganizers = organizers.filter((organizer) => {
     const matchesSearch =
       searchQuery === "" ||
       organizer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -100,12 +140,20 @@ export default function StudentPage() {
     const matchesDietary =
       dietary.length === 0 ||
       dietary.some((diet) =>
-        organizer.dietaryTags.some((tag) =>
-          tag.toLowerCase().replace(/\s+/g, "-").includes(diet.toLowerCase())
-        )
+        organizer.dietaryTags.some((tag) => {
+          // Normalize both filter and tag for comparison
+          const normalizedFilter = diet.toLowerCase().replace(/\s+/g, "-");
+          const normalizedTag = tag.toLowerCase().replace(/\s+/g, "-");
+          return normalizedTag === normalizedFilter || normalizedTag.includes(normalizedFilter);
+        })
       );
 
-    const matchesAvailability = availability === "" || organizer.availability === availability;
+    // Map availability filter to event availability
+    const event = currentEvents.find((e) => e.id === organizer.id);
+    const matchesAvailability = 
+      availability === "" || 
+      (event && event.availability === availability);
+
     const matchesLocation = location === "" || organizer.location === location;
 
     return matchesSearch && matchesDietary && matchesAvailability && matchesLocation;
@@ -114,25 +162,26 @@ export default function StudentPage() {
   // Sort organizers
   if (sorting !== "") {
     filteredOrganizers = [...filteredOrganizers].sort((a, b) => {
+      const eventA = currentEvents.find((e) => e.id === a.id);
+      const eventB = currentEvents.find((e) => e.id === b.id);
+      
+      if (!eventA || !eventB) return 0;
+
       switch (sorting) {
         case "newest":
-          // TODO: Sort by creation date when available
-          return 0;
+          // Sort by created_at (newest first)
+          return new Date(eventB.created_at).getTime() - new Date(eventA.created_at).getTime();
         case "ending-soon":
-          // TODO: Sort by time left when available
-          return 0;
+          // Sort by end_time (ending soon first)
+          return new Date(eventA.end_time).getTime() - new Date(eventB.end_time).getTime();
         case "available-soon":
-          // TODO: Sort by availability time when available
-          return 0;
+          // Sort by start_time (available soon first)
+          return new Date(eventA.start_time).getTime() - new Date(eventB.start_time).getTime();
         default:
           return 0;
       }
     });
   }
-
-  const expandedOrganizer = expandedOrganizerId
-    ? mockOrganizers.find((o) => o.id === expandedOrganizerId)
-    : null;
 
   return (
     <div className="min-h-screen w-full bg-[#f9f8f4]">
@@ -155,24 +204,46 @@ export default function StudentPage() {
           />
         </div>
 
-        {/* Main Section - Organizer Cards List */}
-        <div className="space-y-4">
-          {filteredOrganizers.map((organizer) => (
-            <OrganizerCard
-              key={organizer.id}
-              organizer={organizer}
-              isExpanded={expandedOrganizerId === organizer.id}
-              onClick={() => handleCardClick(organizer.id)}
-            />
-          ))}
-        </div>
-
-        {filteredOrganizers.length === 0 && (
+        {/* Loading State */}
+        {loading && (
           <div className="py-16 text-center">
-            <p className="text-xl font-semibold text-emerald-900">
-              No organizers found matching your search.
-            </p>
+            <p className="text-xl font-semibold text-emerald-900">Loading events...</p>
           </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="rounded-[20px] border-[2px] border-red-500 bg-red-50 p-4 mb-6">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+
+        {/* Main Section - Organizer Cards List */}
+        {!loading && (
+          <>
+            {filteredOrganizers.length > 0 ? (
+              <div className="space-y-4">
+                {filteredOrganizers.map((organizer) => (
+                  <OrganizerCard
+                    key={organizer.id}
+                    organizer={organizer}
+                    isExpanded={expandedOrganizerId === organizer.id}
+                    onClick={() => handleCardClick(organizer.id)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="py-16 text-center">
+                <div className="rounded-[30px] border-[3px] border-emerald-900 bg-white p-8 shadow-[0_5px_0_0_rgba(16,78,61,0.3)]">
+                  <p className="text-xl font-semibold text-emerald-900">
+                    {events.length === 0
+                      ? "No events available. Check back later!"
+                      : "No events found matching your search."}
+                  </p>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>

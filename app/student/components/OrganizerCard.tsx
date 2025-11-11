@@ -3,7 +3,7 @@ import React from "react";
 import Image from "next/image";
 
 interface Organizer {
-  id: number;
+  id: number | string;
   name: string;
   location: string;
   locationLabel: string;
