@@ -18,7 +18,7 @@ export async function middleware(req: NextRequest) {
   // Handle only the root path to choose a landing destination
   if (req.nextUrl.pathname === "/") {
     if (!user) {
-      return NextResponse.redirect(new URL("/public", req.url));
+      return NextResponse.redirect(new URL("/landing", req.url));
     }
 
     // Role-based fan-out (stored in user_metadata.role)

@@ -13,7 +13,7 @@ export default function Hero() {
 
     if (user && user.email?.toLowerCase().endsWith("@bu.edu")) {
       // already signed in → straight to feed
-      router.push("/feed");
+      router.push("/student");
       return;
     }
 

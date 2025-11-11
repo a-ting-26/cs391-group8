@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { supabaseBrowser } from '@/lib/supabase/client';
 
 export default function AuthGoogleOnly() {
@@ -17,7 +18,7 @@ export default function AuthGoogleOnly() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/feed`,
+          redirectTo: `${window.location.origin}/student`,
           queryParams: { hd: 'bu.edu', prompt: 'select_account' },
         },
       });
@@ -31,7 +32,7 @@ export default function AuthGoogleOnly() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-red-600 to-red-800 px-4 py-12">
+    <div className="min-h-screen w-full bg-[#8EDFA4] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="mb-8 text-center">

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Anton } from "next/font/google";
-import "../globals.css"; // use relative path (since this layout is inside /public)
+import "../globals.css"; // use relative path (since this layout is inside /landing)
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     "Your campus guide to free food, less waste, and more connection.",
 };
 
-export default function PublicLayout({
+export default function LandingLayout({
   children,
 }: {
   children: React.ReactNode;
