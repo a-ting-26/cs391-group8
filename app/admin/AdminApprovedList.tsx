@@ -1,9 +1,8 @@
-// app/admin/AdminApprovedList.tsx
 "use client";
 
 import { useState } from "react";
 
-type ApprovedRow = {
+export type ApprovedRow = {
   id: string;
   org_name: string;
   contact_email: string | null;
@@ -31,7 +30,6 @@ export default function AdminApprovedList({ initialItems }: { initialItems: Appr
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Remove failed");
-      // remove from list
       setItems((prev) => prev.filter((r) => r.id !== userId));
     } catch (e: any) {
       setErr(e.message || "Remove failed");
@@ -41,18 +39,26 @@ export default function AdminApprovedList({ initialItems }: { initialItems: Appr
   };
 
   if (!items.length) {
-    return <p className="text-gray-700">No approved organizers.</p>;
+    return (
+      <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800">
+        No approved organizers.
+      </p>
+    );
   }
 
   return (
     <div className="space-y-4">
       {err && <p className="text-sm text-red-600">{err}</p>}
+
       {items.map((row) => (
-        <div key={row.id} className="rounded-lg border bg-white p-5 shadow-sm">
+        <div
+          key={row.id}
+          className="rounded-xl border-[3px] border-emerald-900 bg-white p-5 shadow-[0_6px_0_0_rgba(16,78,61,0.45)]"
+        >
           <div className="flex items-start justify-between gap-6">
             <div>
-              <h3 className="text-lg font-semibold text-emerald-900">{row.org_name}</h3>
-              {row.contact_email && <p className="text-sm text-gray-600">{row.contact_email}</p>}
+              <h3 className="text-lg font-extrabold text-emerald-900">{row.org_name}</h3>
+              {row.contact_email && <p className="text-sm text-gray-700">{row.contact_email}</p>}
               {row.website && (
                 <a
                   href={row.website}
@@ -64,18 +70,19 @@ export default function AdminApprovedList({ initialItems }: { initialItems: Appr
                 </a>
               )}
               {row.updated_at && (
-                <p className="mt-1 text-xs text-gray-500">Updated: {new Date(row.updated_at).toLocaleString()}</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  Updated: {new Date(row.updated_at).toLocaleString()}
+                </p>
               )}
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => removeOrg(row.id)}
-                disabled={busy === row.id}
-                className="rounded-md border border-red-700 px-4 py-2 text-red-700 hover:bg-red-50 disabled:opacity-60"
-              >
-                {busy === row.id ? "Removing…" : "Remove"}
-              </button>
-            </div>
+
+            <button
+              onClick={() => removeOrg(row.id)}
+              disabled={busy === row.id}
+              className="rounded-full border-[3px] border-red-700 bg-white px-5 py-2 text-sm font-black uppercase tracking-wide text-red-700 shadow-[0_5px_0_0_rgba(185,28,28,0.45)] transition-all hover:-translate-y-0.5 hover:bg-red-50 disabled:opacity-60"
+            >
+              {busy === row.id ? "Removing…" : "Remove"}
+            </button>
           </div>
         </div>
       ))}
