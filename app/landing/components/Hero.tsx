@@ -20,7 +20,7 @@ export default function Hero() {
     // not signed in (or wrong domain) → send to student auth
     if (user && !user.email?.toLowerCase().endsWith("@bu.edu")) {
       await supabase.auth.signOut();
-      router.replace("/public?authError=Please%20use%20a%20%40bu.edu%20account");
+      router.replace("/landing?authError=Please%20use%20a%20%40bu.edu%20account");
       return;
     }
     router.push("/auth/signup"); // your existing student flow
@@ -39,7 +39,7 @@ export default function Hero() {
     // 2) BU domain guard
     if (!user.email?.toLowerCase().endsWith("@bu.edu")) {
       await supabase.auth.signOut();
-      router.replace("/public?authError=Please%20use%20a%20%40bu.edu%20account");
+      router.replace("/landing?authError=Please%20use%20a%20%40bu.edu%20account");
       return;
     }
 

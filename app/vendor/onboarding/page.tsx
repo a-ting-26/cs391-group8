@@ -41,7 +41,7 @@ export default function OrganizerOnboardingPage() {
       if (!user && code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (error) {
-          router.replace(`/public?authError=${encodeURIComponent(error.message)}`);
+          router.replace(`/landing?authError=${encodeURIComponent(error.message)}`);
           return;
         }
         // Clean URL so refreshes don’t re-run the exchange
@@ -54,14 +54,14 @@ export default function OrganizerOnboardingPage() {
 
       // No session → back to landing
       if (!user) {
-        router.replace("/public");
+        router.replace("/landing");
         return;
       }
 
       // BU domain guard
       if (!user.email?.toLowerCase().endsWith("@bu.edu")) {
         await supabase.auth.signOut();
-        router.replace("/public?authError=Please%20use%20your%20%40bu.edu%20account");
+        router.replace("/landing?authError=Please%20use%20your%20%40bu.edu%20account");
         return;
       }
 
@@ -123,7 +123,7 @@ export default function OrganizerOnboardingPage() {
       const supabase = supabaseBrowser();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        router.replace("/public");
+        router.replace("/landing");
         return;
       }
 
@@ -242,7 +242,7 @@ export default function OrganizerOnboardingPage() {
         <div className="mt-6 flex items-center justify-end gap-3">
           <button
             type="button"
-            onClick={() => router.replace("/public")}
+            onClick={() => router.replace("/landing")}
             className="rounded-lg border border-emerald-900 px-4 py-2 font-semibold text-emerald-900 hover:bg-emerald-50"
           >
             Cancel

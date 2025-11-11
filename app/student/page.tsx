@@ -126,7 +126,7 @@ export default function StudentPage() {
         // BU domain guard
         if (!existingUser.email?.toLowerCase().endsWith("@bu.edu")) {
           await supabase.auth.signOut();
-          router.replace("/public?authError=Please%20use%20a%20%40bu.edu%20account");
+          router.replace("/landing?authError=Please%20use%20a%20%40bu.edu%20account");
           return;
         }
 
@@ -146,7 +146,7 @@ export default function StudentPage() {
           // Try reading the user anyway (Supabase hosted callback might have set cookies)
           const retry = await supabase.auth.getUser();
           if (!retry.data.user) {
-            router.replace(`/public?authError=${encodeURIComponent(error.message)}`);
+            router.replace(`/landing?authError=${encodeURIComponent(error.message)}`);
             return;
           }
         }
@@ -159,12 +159,12 @@ export default function StudentPage() {
       // 3) Final session check
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        router.replace("/public");
+        router.replace("/landing");
         return;
       }
       if (!user.email?.toLowerCase().endsWith("@bu.edu")) {
         await supabase.auth.signOut();
-        router.replace("/public?authError=Please%20use%20a%20%40bu.edu%20account");
+        router.replace("/landing?authError=Please%20use%20a%20%40bu.edu%20account");
         return;
       }
 

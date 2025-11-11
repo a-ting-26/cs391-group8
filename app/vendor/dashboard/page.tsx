@@ -7,11 +7,11 @@ export default async function OrganizerDashboardPage() {
   const supabase = await createSupabaseServerClient();
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/public");
+  if (!user) redirect("/landing");
 
   // BU guard (defense-in-depth)
   if (!user.email?.toLowerCase().endsWith("@bu.edu")) {
-    redirect("/public?authError=Please%20use%20your%20%40bu.edu%20account");
+    redirect("/landing?authError=Please%20use%20your%20%40bu.edu%20account");
   }
 
   // Ensure organizer is approved before showing dashboard
