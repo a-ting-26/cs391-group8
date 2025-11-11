@@ -5,254 +5,85 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabaseBrowser } from '@/lib/supabase/client';
 
-export default function SignUpPage() {
+export default function AuthGoogleOnly() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    role: 'student', // 'student' or 'vendor'
-  });
-  const [errors, setErrors] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    general: ''
-  });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<'signup' | 'login' | null>(null);
 
-  // Set role from URL query parameter if present
-  useEffect(() => {
-    const roleParam = searchParams.get('role');
-    if (roleParam === 'vendor' || roleParam === 'student') {
-      setFormData(prev => ({ ...prev, role: roleParam }));
-    }
-  }, [searchParams]);
-
-  const validateBUEmail = (email: string): boolean =>
-    /^[a-zA-Z0-9._%+-]+@bu\.edu$/.test(email);
-
-  const validatePassword = (password: string): boolean =>
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name as keyof typeof errors]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors = { email: '', password: '', confirmPassword: '', general: '' };
-    let isValid = true;
-
-    if (!formData.email) { newErrors.email = 'Email is required'; isValid = false; }
-    else if (!validateBUEmail(formData.email)) { newErrors.email = 'Please use a valid BU email address (@bu.edu)'; isValid = false; }
-
-    if (!formData.password) { newErrors.password = 'Password is required'; isValid = false; }
-    else if (!validatePassword(formData.password)) { newErrors.password = 'Password must be at least 8 characters with uppercase, lowercase, and number'; isValid = false; }
-
-    if (!formData.confirmPassword) { newErrors.confirmPassword = 'Please confirm your password'; isValid = false; }
-    else if (formData.password !== formData.confirmPassword) { newErrors.confirmPassword = 'Passwords do not match'; isValid = false; }
-
-    setErrors(newErrors);
-    return isValid;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    setIsLoading(true);
-    setErrors(prev => ({ ...prev, general: '' }));
-
+  // start Google OAuth; `mode` just helps us know which button started it
+  const startGoogleOAuth = async (mode: 'signup' | 'login') => {
+    setIsLoading(mode);
     try {
       const supabase = supabaseBrowser();
-
-      // Sign up with metadata (role)
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
+      // `hd=bu.edu` hints to Google to show BU accounts; we'll hard-enforce in the callback.
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
         options: {
-          data: {
-            role: formData.role, // 'student' or 'vendor'
-          },
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/student`,
+          queryParams: { hd: 'bu.edu', prompt: 'select_account' },
         },
       });
-
-      if (error) throw new Error(error.message);
-
-      // If email confirmations are enabled, user must check inbox
-      // Route based on role
-      if (formData.role === 'vendor') {
-        router.replace('/vendor');
-      } else {
-        router.replace('/landing?checkEmail=1');
-      }
+      
+      if (error) throw error;
+      // the browser will redirect to Google; no further code runs here
     } catch (err: any) {
-      setErrors(prev => ({
-        ...prev,
-        general: err?.message || 'An error occurred during sign up',
-      }));
-    } finally {
-      setIsLoading(false);
+      setIsLoading(null);
+      alert(err?.message || 'Failed to start Google sign-in');
     }
   };
 
   return (
     <div className="min-h-screen w-full bg-[#8EDFA4] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
-        {/* Logo/Header */}
+        {/* Header */}
         <div className="mb-8 text-center">
-          <h1 
-            className="text-5xl font-black uppercase tracking-widest text-emerald-900 mb-4"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            SparkBytes!
-          </h1>
-          <p className="text-lg font-semibold text-emerald-800">Sign up to find free food on campus</p>
+          <h1 className="text-4xl font-bold text-white mb-2">BU Spark!Bytes</h1>
+          <p className="text-red-100">Sign in or create an account with Google</p>
         </div>
 
-        {/* Sign Up Form */}
-        <div className="bg-white rounded-[20px] border-[3px] border-emerald-900 shadow-[0_8px_0_0_rgba(16,78,61,0.3)] p-8">
-          <h2 className="text-3xl font-black uppercase tracking-wide text-emerald-900 mb-6" style={{ fontFamily: "var(--font-display)" }}>
-            Create Account
-          </h2>
+        {/* Card */}
+        <div className="bg-white rounded-lg shadow-xl p-8">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-6">Welcome</h2>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email Field */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-bold text-emerald-900 mb-2">
-                BU Email Address *
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="yourname@bu.edu"
-                className={`w-full px-4 py-3 border-[2px] rounded-[12px] text-emerald-900 placeholder-emerald-400 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-900 outline-none transition ${
-                  errors.email ? 'border-red-500' : 'border-emerald-700'
-                }`}
-                required
-              />
-              {errors.email && <p className="mt-2 text-sm font-semibold text-red-600">{errors.email}</p>}
-            </div>
-
-            {/* Password Field */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-bold text-emerald-900 mb-2">
-                Password *
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter password"
-                className={`w-full px-4 py-3 border-[2px] rounded-[12px] text-emerald-900 placeholder-emerald-400 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-900 outline-none transition ${
-                  errors.password ? 'border-red-500' : 'border-emerald-700'
-                }`}
-                required
-              />
-              {errors.password && <p className="mt-2 text-sm font-semibold text-red-600">{errors.password}</p>}
-              <p className="mt-2 text-xs font-medium text-emerald-700">
-                Must be 8+ characters with uppercase, lowercase, and number
-              </p>
-            </div>
-
-            {/* Confirm Password Field */}
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-bold text-emerald-900 mb-2">
-                Confirm Password *
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Re-enter password"
-                className={`w-full px-4 py-3 border-[2px] rounded-[12px] text-emerald-900 placeholder-emerald-400 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-900 outline-none transition ${
-                  errors.confirmPassword ? 'border-red-500' : 'border-emerald-700'
-                }`}
-                required
-              />
-              {errors.confirmPassword && <p className="mt-2 text-sm font-semibold text-red-600">{errors.confirmPassword}</p>}
-            </div>
-
-            {/* Role Selection */}
-            <div>
-              <label className="block text-sm font-bold text-emerald-900 mb-3">
-                I am signing up as: *
-              </label>
-              <div className="flex gap-4">
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="student"
-                    checked={formData.role === 'student'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                    className="mr-2 h-5 w-5 text-emerald-900 focus:ring-emerald-500 border-emerald-700"
-                  />
-                  <span className="text-emerald-900 font-semibold">Student</span>
-                </label>
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="vendor"
-                    checked={formData.role === 'vendor'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                    className="mr-2 h-5 w-5 text-emerald-900 focus:ring-emerald-500 border-emerald-700"
-                  />
-                  <span className="text-emerald-900 font-semibold">Organizer/Vendor</span>
-                </label>
-              </div>
-            </div>
-
-            {/* General Error Message */}
-            {errors.general && (
-              <div className="p-4 bg-red-50 border-[2px] border-red-500 rounded-[12px]">
-                <p className="text-sm font-semibold text-red-700">{errors.general}</p>
-              </div>
-            )}
-
-            {/* Submit Button */}
+          <div className="space-y-4">
+            {/* Google Sign Up */}
             <button
-              type="submit"
-              disabled={isLoading}
-              className={`w-full py-4 px-6 rounded-full border-[3px] border-emerald-900 font-black uppercase tracking-wider text-lg transition-all ${
-                isLoading
-                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed border-gray-400'
-                  : 'bg-[#FEF3C7] text-emerald-900 shadow-[0_6px_0_0_rgba(16,78,61,0.4)] hover:-translate-y-1 hover:shadow-[0_8px_0_0_rgba(16,78,61,0.5)] hover:bg-[#FDE68A] active:translate-y-0'
+              onClick={() => startGoogleOAuth('signup')}
+              disabled={!!isLoading}
+              className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors ${
+                isLoading === 'signup'
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-red-600 hover:bg-red-700 active:bg-red-800'
               }`}
             >
-              {isLoading ? 'Creating Account...' : 'Sign Up'}
+              {isLoading === 'signup' ? 'Redirecting…' : 'Sign up with Google (@bu.edu)'}
             </button>
-          </form>
 
-          {/* Login Link */}
-          <div className="mt-6 text-center">
-            <p className="text-sm font-semibold text-emerald-800">
-              Already have an account?{' '}
-              <Link href="/auth/login" className="text-emerald-900 hover:text-emerald-700 font-black underline">
-                Log in
-              </Link>
-            </p>
+            {/* Divider */}
+            <div className="flex items-center justify-center gap-3 text-sm text-gray-500">
+              <span className="h-px w-16 bg-gray-200" />
+              or
+              <span className="h-px w-16 bg-gray-200" />
+            </div>
+
+            {/* Google Login */}
+            <button
+              onClick={() => startGoogleOAuth('login')}
+              disabled={!!isLoading}
+              className={`w-full py-3 px-4 rounded-lg font-semibold text-red-700 border border-red-200 bg-red-50 transition-colors ${
+                isLoading === 'login'
+                  ? 'opacity-60 cursor-not-allowed'
+                  : 'hover:bg-red-100'
+              }`}
+            >
+              {isLoading === 'login' ? 'Redirecting…' : 'Log in with Google (@bu.edu)'}
+            </button>
           </div>
-        </div>
 
-        {/* Footer Note */}
-        <p className="mt-6 text-center text-sm font-semibold text-emerald-800">
-          Only BU students and faculty can sign up
-        </p>
+          {/* Footer note */}
+          <p className="mt-6 text-center text-sm text-gray-500">
+            Only BU students and faculty can sign in.
+          </p>
+        </div>
       </div>
     </div>
   );
