@@ -100,7 +100,7 @@ export default function OrganizerOnboardingPage() {
         setStatus(existing.status as typeof status);
 
         if (existing.status === "approved") {
-          router.replace("/vendor/dashboard");
+          router.replace("/vendor");
           return;
         }
         if (existing.status === "pending") {

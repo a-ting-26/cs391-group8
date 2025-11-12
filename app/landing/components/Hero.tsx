@@ -64,7 +64,7 @@ export default function Hero() {
 
     // 4) Route by state
     if (hasOrganizerRole && status === "approved") {
-      router.push("/vendor/dashboard");
+      router.push("/vendor");
       return;
     }
 

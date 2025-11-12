@@ -15,7 +15,7 @@ export default async function PendingPage() {
     .maybeSingle();
 
   if (!app) redirect("/vendor/onboarding");            // no app yet
-  if (app.status === "approved") redirect("/vendor/dashboard");
+  if (app.status === "approved") redirect("/vendor");
   if (app.status === "rejected") redirect("/vendor/onboarding?resubmit=1");
 
   // still pending
