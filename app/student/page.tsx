@@ -1,12 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import mapboxgl from "mapbox-gl";
+mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
+
+import React, { useState, useEffect, useRef } from "react";
 import StudentNavBar from "./components/StudentNavBar";
 import SearchBar from "./components/SearchBar";
 import OrganizerCard from "./components/OrganizerCard";
 import { upsertStudentProfile } from "@/lib/actions/upsertStudentProfile";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
+import { geocodeLocation } from "@/lib/mapbox/geocoding";
 
 interface Event {
   id: string;
@@ -22,6 +26,8 @@ interface Event {
   end_time: string;
   availability: string;
   created_at: string;
+  lat?: number | null;
+  lng?: number | null;
 }
 
 interface Organizer {
@@ -186,12 +192,26 @@ export default function StudentPage() {
         credentials: "include",
       });
       const data = await response.json();
-      
+  
       if (!response.ok) {
         throw new Error(data.error || "Failed to fetch events");
       }
-      
-      setEvents(data.events || []);
+  
+      // Geocode each event's location into lat/lng
+      const enrichedEvents = await Promise.all(
+        (data.events || []).map(async (event: Event) => {
+          const coords = await geocodeLocation(event.location);
+          console.log("Geocoded:", event.location, coords);
+          return {
+            ...event,
+            lat: coords?.lat ?? null,
+            lng: coords?.lng ?? null,
+          };
+        })
+      );
+      console.log("Enriched events:", enrichedEvents);
+
+      setEvents(enrichedEvents);
     } catch (err: any) {
       setError(err.message || "Failed to load events");
     } finally {
