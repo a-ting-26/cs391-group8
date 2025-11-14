@@ -5,14 +5,14 @@ const geocodingClient = mbxGeocoding({
 });
 
 const buLocations: Record<string, { lat: number; lng: number }> = {
-  "george-sherman-union": { lat: 42.3503, lng: -71.1062 },
-  "central-campus": { lat: 42.3505, lng: -71.1054 },
-  "warren-towers": { lat: 42.3492, lng: -71.1028 },
-  "questrom": { lat: 42.3489, lng: -71.1003 },
-  "fitrec": { lat: 42.3513, lng: -71.1045 },
-  "bu-beach": { lat: 42.3516, lng: -71.1082 },
-};
-
+    "george-sherman-union": { lat: 42.3503, lng: -71.1062 },
+    "central-campus": { lat: 42.3505, lng: -71.1054 },
+    "warren-towers": { lat: 42.3492, lng: -71.1028 },
+    "questrom": { lat: 42.3489, lng: -71.1003 },
+    "fitrec": { lat: 42.3513, lng: -71.1045 },
+    "bu-beach": { lat: 42.3516, lng: -71.1082 },
+  };
+  
 export async function geocodeLocation(location: string) {
   const normalized = location.toLowerCase().trim();
   if (buLocations[normalized]) {
