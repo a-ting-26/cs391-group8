@@ -357,10 +357,74 @@ export default function StudentPage() {
                 </div>
               </div>
             )}
+
+            {/* Map Section */}
+            <div className="mt-12">
+              <StudentMap events={events} />
+            </div>
+
           </>
         )}
       </main>
     </div>
   );
+}
+
+export function StudentMap({ events }: { events: Event[] }) {
+  const mapContainer = useRef<HTMLDivElement | null>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+
+  // initialize map once
+  useEffect(() => {
+    if (map.current) return;
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current!,
+      style: "mapbox://styles/mapbox/streets-v11",
+      center: [-71.1054, 42.3505], // BU campus default
+      zoom: 14,
+    });
+  }, []);
+
+  // add markers when events change
+  useEffect(() => {
+    if (!map.current || events.length === 0) return;
+
+    const now = new Date();
+    const activeEvents = events.filter(e => new Date(e.end_time) > now);
+
+    if (activeEvents.length === 0) {
+      console.log("No active events, keeping default map view.");
+      return;
+    }
+
+    map.current.on("load", () => {
+      const bounds = new mapboxgl.LngLatBounds();
+
+      activeEvents.forEach(event => {
+        if (event.lat && event.lng) {
+          console.log("Adding marker:", event.organizer_name, event.lat, event.lng);
+
+          new mapboxgl.Marker()
+            .setLngLat([event.lng, event.lat])
+            .setPopup(
+              new mapboxgl.Popup().setHTML(`
+                <strong>${event.organizer_name}</strong><br/>
+                🍴 ${event.available_food}<br/>
+                ⏰ ${calculateTimeLeft(event.end_time)}
+              `)
+            )
+            .addTo(map.current!);
+
+          bounds.extend([event.lng, event.lat]);
+        }
+      });
+
+      if (!bounds.isEmpty() && activeEvents.length > 1) {
+        map.current!.fitBounds(bounds, { padding: 50 });
+      }
+    });
+  }, [events]);
+
+  return <div ref={mapContainer} style={{ height: "500px", width: "100%" }} />;
 }
 
