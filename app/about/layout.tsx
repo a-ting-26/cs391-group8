@@ -1,0 +1,40 @@
+import type { Metadata } from "next";
+import { Geist, Geist_Mono, Anton } from "next/font/google";
+import "../globals.css";
+
+const geistSans = Geist({
+    variable: "--font-geist-sans",
+    subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+    variable: "--font-geist-mono",
+    subsets: ["latin"],
+});
+
+const anton = Anton({
+    weight: "400",
+    variable: "--font-display",
+    subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+    title: "About Us | BU Food Finder",
+    description:
+        "Learn about BU Food Finder - connecting students with free food and reducing waste on campus.",
+};
+
+export default function AboutLayout({
+                                        children,
+                                    }: {
+    children: React.ReactNode;
+}) {
+    return (
+        <div
+            className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} 
+       antialiased bg-[#FFD6E7] text-emerald-900 min-h-screen flex flex-col`}
+        >
+            <main className="flex-1">{children}</main>
+        </div>
+    );
+}
