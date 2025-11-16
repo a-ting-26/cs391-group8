@@ -17,9 +17,12 @@ export default function NavBar() {
                 </Link>
             </div>
             <div className="flex items-center gap-6">
-                <a className="rounded-full border-[3px] border-emerald-900 bg-[#BBF7D0] px-8 py-3 text-[0.95rem] font-black uppercase tracking-widest text-emerald-900 shadow-[0_5px_0_0_rgba(16,78,61,0.5)] transition-transform hover:translate-y-[1px] active:translate-y-[3px]">
+                <Link
+                    href="/contact"
+                    className="rounded-full border-[3px] border-emerald-900 bg-[#BBF7D0] px-8 py-3 text-[0.95rem] font-black uppercase tracking-widest text-emerald-900 shadow-[0_5px_0_0_rgba(16,78,61,0.5)] transition-transform hover:translate-y-[1px] active:translate-y-[3px]"
+                >
                     Contact
-                </a>
+                </Link>
                 <Link
                     href="/frq"
                     className="rounded-full border-[3px] border-emerald-900 bg-[#A5F3FC] px-8 py-3 text-[0.95rem] font-black uppercase tracking-widest text-emerald-900 shadow-[0_5px_0_0_rgba(16,78,61,0.5)] transition-transform hover:translate-y-[1px] active:translate-y-[3px]"
