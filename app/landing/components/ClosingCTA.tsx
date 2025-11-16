@@ -4,6 +4,9 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import ScrollingSparkBytesBanner from "./ScrollingSparkBytesBanner";
+import SlideIn from "../../components/animations/SlideIn";
+import ScaleIn from "../../components/animations/ScaleIn";
+import FadeIn from "../../components/animations/FadeIn";
 
 export default function ClosingCTA() {
   const router = useRouter();
@@ -81,32 +84,40 @@ export default function ClosingCTA() {
         <div className="absolute top-0 right-0 px-6" style={{ width: "30%", minWidth: "280px" }}>
           <div className="space-y-8">
             {/* Heading */}
-            <h3
-              className="text-3xl font-extrabold leading-tight text-emerald-900 sm:text-4xl md:text-5xl"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              READY TO GET STARTED?
-            </h3>
+            <SlideIn direction="right" delay={0}>
+              <h3
+                className="text-3xl font-extrabold leading-tight text-emerald-900 sm:text-4xl md:text-5xl"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                READY TO GET STARTED?
+              </h3>
+            </SlideIn>
             
             {/* Description */}
-            <p className="text-base font-semibold leading-relaxed text-emerald-900/90 sm:text-lg" style={{ fontFamily: "var(--font-inter)" }}>
-              Join thousands of BU students discovering free food events on campus. Connect with organizers, reduce waste, and never miss out on delicious opportunities.
-            </p>
+            <SlideIn direction="right" delay={0.15}>
+              <p className="text-base font-semibold leading-relaxed text-emerald-900/90 sm:text-lg" style={{ fontFamily: "var(--font-inter)" }}>
+                Join thousands of BU students discovering free food events on campus. Connect with organizers, reduce waste, and never miss out on delicious opportunities.
+              </p>
+            </SlideIn>
             
             {/* Buttons */}
             <div className="flex flex-col gap-4">
-              <button
-                onClick={handleStudentClick}
-                className="rounded-full border-[3px] border-emerald-900 bg-[#FEF3C7] px-8 py-4 text-lg font-black uppercase tracking-widest text-emerald-900 shadow-[0_7px_0_0_rgba(16,78,61,0.6)] transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:shadow-[0_10px_0_0_rgba(16,78,61,0.7)] hover:bg-[#FDE68A] active:translate-y-0"
-              >
-                Join as Student
-              </button>
-              <button
-                onClick={handleOrganizerClick}
-                className="rounded-full border-[3px] border-emerald-900 bg-[#DBEAFE] px-8 py-4 text-lg font-black uppercase tracking-widest text-emerald-900 shadow-[0_7px_0_0_rgba(16,78,61,0.6)] transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:shadow-[0_10px_0_0_rgba(16,78,61,0.7)] hover:bg-[#BFDBFE] active:translate-y-0"
-              >
-                Become an Organizer
-              </button>
+              <ScaleIn delay={0.3} scaleFrom={0.8}>
+                <button
+                  onClick={handleStudentClick}
+                  className="rounded-full border-[3px] border-emerald-900 bg-[#FEF3C7] px-8 py-4 text-lg font-black uppercase tracking-widest text-emerald-900 shadow-[0_7px_0_0_rgba(16,78,61,0.6)] transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:shadow-[0_10px_0_0_rgba(16,78,61,0.7)] hover:bg-[#FDE68A] active:translate-y-0"
+                >
+                  Join as Student
+                </button>
+              </ScaleIn>
+              <ScaleIn delay={0.4} scaleFrom={0.8}>
+                <button
+                  onClick={handleOrganizerClick}
+                  className="rounded-full border-[3px] border-emerald-900 bg-[#DBEAFE] px-8 py-4 text-lg font-black uppercase tracking-widest text-emerald-900 shadow-[0_7px_0_0_rgba(16,78,61,0.6)] transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:shadow-[0_10px_0_0_rgba(16,78,61,0.7)] hover:bg-[#BFDBFE] active:translate-y-0"
+                >
+                  Become an Organizer
+                </button>
+              </ScaleIn>
             </div>
           </div>
         </div>
@@ -114,12 +125,14 @@ export default function ClosingCTA() {
 
       {/* Bottom Left: BOSTON UNIVERSITY text - positioned at bottom of section */}
       <div className="absolute bottom-0 left-0 px-6 pb-6">
-        <h2
-          className="text-5xl font-extrabold leading-[0.85] tracking-tight text-emerald-900 sm:text-6xl md:text-7xl lg:text-8xl"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
-          BOSTON UNIVERSITY
-        </h2>
+        <FadeIn delay={0.2}>
+          <h2
+            className="text-5xl font-extrabold leading-[0.85] tracking-tight text-emerald-900 sm:text-6xl md:text-7xl lg:text-8xl"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            BOSTON UNIVERSITY
+          </h2>
+        </FadeIn>
       </div>
     </section>
   );

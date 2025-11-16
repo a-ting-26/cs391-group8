@@ -1,6 +1,18 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import FadeIn from "../components/animations/FadeIn";
+import SlideIn from "../components/animations/SlideIn";
+import ScaleIn from "../components/animations/ScaleIn";
+
+const ACTIVE_BUTTON_COLOR = "#FEF3C7"; // cream/yellow for active buttons
+const PAGE_COLORS = {
+  "/landing": "#8EDFA4", // green
+  "/about": "#FFD6E7", // pink
+  "/contact": "#E6D5FF", // purple
+  "/frq": "#A5F3FC", // blue
+};
 
 interface FAQItemProps {
     question: string;
@@ -31,6 +43,10 @@ function FAQItem({ question, answer }: FAQItemProps) {
 }
 
 export default function FRQPage() {
+    const pathname = usePathname();
+    const isActive = (path: string) => pathname === path || (path === "/landing" && pathname === "/");
+    const getButtonColor = (path: string) => isActive(path) ? ACTIVE_BUTTON_COLOR : PAGE_COLORS[path as keyof typeof PAGE_COLORS];
+    
     const faqs = [
         {
             question: "How do I find free food on campus?",
@@ -75,19 +91,21 @@ export default function FRQPage() {
     ];
 
     return (
-        <div className="min-h-screen w-full bg-[#A5F3FC]">
+        <div className="min-h-screen w-full" style={{ backgroundColor: "#A5F3FC" }}>
             {/* Navigation Bar */}
             <nav className="sticky top-0 z-50 mx-auto flex w-full items-center justify-between bg-transparent px-6 py-5 backdrop-blur-0">
                 <div className="flex items-center gap-6">
                     <Link
                         href="/landing"
-                        className="rounded-full border-[3px] border-emerald-900 bg-[#8EDFA4] px-8 py-3 text-[0.95rem] font-black uppercase tracking-widest text-emerald-900 shadow-[0_5px_0_0_rgba(16,78,61,0.5)] transition-transform hover:translate-y-[1px] active:translate-y-[3px]"
+                        className="rounded-full border-[3px] border-emerald-900 px-8 py-3 text-[0.95rem] font-black uppercase tracking-widest text-emerald-900 shadow-[0_5px_0_0_rgba(16,78,61,0.5)] transition-transform hover:translate-y-[1px] active:translate-y-[3px]"
+                        style={{ backgroundColor: getButtonColor("/landing") }}
                     >
                         Home
                     </Link>
                     <Link
                         href="/about"
-                        className="rounded-full border-[3px] border-emerald-900 bg-[#FDE68A] px-8 py-3 text-[0.95rem] font-black uppercase tracking-widest text-emerald-900 shadow-[0_5px_0_0_rgba(16,78,61,0.5)] transition-transform hover:translate-y-[1px] active:translate-y-[3px]"
+                        className="rounded-full border-[3px] border-emerald-900 px-8 py-3 text-[0.95rem] font-black uppercase tracking-widest text-emerald-900 shadow-[0_5px_0_0_rgba(16,78,61,0.5)] transition-transform hover:translate-y-[1px] active:translate-y-[3px]"
+                        style={{ backgroundColor: getButtonColor("/about") }}
                     >
                         About
                     </Link>
@@ -95,11 +113,15 @@ export default function FRQPage() {
                 <div className="flex items-center gap-6">
                     <Link
                         href="/contact"
-                        className="rounded-full border-[3px] border-emerald-900 bg-[#BBF7D0] px-8 py-3 text-[0.95rem] font-black uppercase tracking-widest text-emerald-900 shadow-[0_5px_0_0_rgba(16,78,61,0.5)] transition-transform hover:translate-y-[1px] active:translate-y-[3px]"
+                        className="rounded-full border-[3px] border-emerald-900 px-8 py-3 text-[0.95rem] font-black uppercase tracking-widest text-emerald-900 shadow-[0_5px_0_0_rgba(16,78,61,0.5)] transition-transform hover:translate-y-[1px] active:translate-y-[3px]"
+                        style={{ backgroundColor: getButtonColor("/contact") }}
                     >
                         Contact
                     </Link>
-                    <a className="rounded-full border-[3px] border-emerald-900 bg-[#FFD6E7] px-8 py-3 text-[0.95rem] font-black uppercase tracking-widest text-emerald-900 shadow-[0_5px_0_0_rgba(16,78,61,0.5)] transition-transform hover:translate-y-[1px] active:translate-y-[3px]">
+                    <a 
+                        className="rounded-full border-[3px] border-emerald-900 px-8 py-3 text-[0.95rem] font-black uppercase tracking-widest text-emerald-900 shadow-[0_5px_0_0_rgba(16,78,61,0.5)] transition-transform hover:translate-y-[1px] active:translate-y-[3px]"
+                        style={{ backgroundColor: getButtonColor("/frq") }}
+                    >
                         FAQs
                     </a>
                 </div>
@@ -107,33 +129,40 @@ export default function FRQPage() {
 
             {/* Content Section */}
             <div className="mx-auto max-w-4xl px-6 py-16">
-                <h1
-                    className="mb-12 text-center text-6xl font-extrabold leading-tight tracking-tight text-emerald-900 sm:text-7xl md:text-8xl"
-                    style={{ fontFamily: "var(--font-display)" }}
-                >
-                    OUR FAQs
-                </h1>
+                <FadeIn delay={0}>
+                    <h1
+                        className="mb-12 text-center text-6xl font-extrabold leading-tight tracking-tight text-emerald-900 sm:text-7xl md:text-8xl"
+                        style={{ fontFamily: "var(--font-display)" }}
+                    >
+                        OUR FAQs
+                    </h1>
+                </FadeIn>
 
                 <div className="space-y-4">
                     {faqs.map((faq, index) => (
-                        <FAQItem
-                            key={index}
-                            question={faq.question}
-                            answer={faq.answer}
-                        />
+                        <SlideIn key={index} direction="up" delay={0 + index * 0.02} duration={0.4}>
+                            <FAQItem
+                                question={faq.question}
+                                answer={faq.answer}
+                            />
+                        </SlideIn>
                     ))}
                 </div>
 
                 <div className="mt-16 text-center">
-                    <p className="mb-6 text-lg text-emerald-900 font-semibold" style={{ fontFamily: "var(--font-inter)" }}>
-                        Still have questions? Email us!
-                    </p>
-                    <Link
-                        href="/landing"
-                        className="inline-block rounded-full border-[3px] border-emerald-900 bg-[#FEF3C7] px-12 py-5 text-xl font-black uppercase tracking-widest text-emerald-900 shadow-[0_7px_0_0_rgba(16,78,61,0.6)] transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:bg-[#FDE68A] hover:shadow-[0_10px_0_0_rgba(16,78,61,0.7)] active:translate-y-0"
-                    >
-                        Back to Home
-                    </Link>
+                    <FadeIn delay={0.2} duration={0.4}>
+                        <p className="mb-6 text-lg text-emerald-900 font-semibold" style={{ fontFamily: "var(--font-inter)" }}>
+                            Still have questions?
+                        </p>
+                    </FadeIn>
+                    <ScaleIn delay={0.25} scaleFrom={0.8} duration={0.4}>
+                        <Link
+                            href="/contact"
+                            className="inline-block rounded-full border-[3px] border-emerald-900 bg-[#FEF3C7] px-12 py-5 text-xl font-black uppercase tracking-widest text-emerald-900 shadow-[0_7px_0_0_rgba(16,78,61,0.6)] transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:bg-[#FDE68A] hover:shadow-[0_10px_0_0_rgba(16,78,61,0.7)] active:translate-y-0"
+                        >
+                            Get In Touch
+                        </Link>
+                    </ScaleIn>
                 </div>
             </div>
         </div>

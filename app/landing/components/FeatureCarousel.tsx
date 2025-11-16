@@ -1,6 +1,8 @@
 "use client";
 import Image from "next/image";
 import React, { useMemo, useState } from "react";
+import SlideIn from "../../components/animations/SlideIn";
+import ScaleIn from "../../components/animations/ScaleIn";
 
 export default function FeatureCarousel() {
   const slides = useMemo(
@@ -41,34 +43,22 @@ export default function FeatureCarousel() {
 
   return (
     <section className="relative w-full">
-      {/* Wavy divider with Spark! */}
-      <div className="relative w-full bg-[#8EDFA4] pb-4">
-        <svg
-          className="w-full h-16"
-          viewBox="0 0 1200 120"
-          preserveAspectRatio="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M0,60 Q150,20 300,60 T600,60 T900,60 T1200,60 L1200,120 L0,120 Z"
-            fill="#8EDFA4"
-            stroke="none"
-          />
-          <path
-            d="M0,60 Q150,20 300,60 T600,60 T900,60 T1200,60"
-            stroke="#065F46"
-            strokeWidth="8"
-            strokeOpacity="0.8"
-            fill="none"
-          />
-        </svg>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      {/* Divider with Spark! */}
+      <div className="relative w-full bg-[#8EDFA4] flex items-center justify-center px-6 py-4">
+        <div className="flex items-center gap-6 w-full max-w-4xl mx-auto">
+          {/* Left line */}
+          <div className="flex-1 h-[4px] bg-emerald-900/60" />
+          
+          {/* Text */}
           <h2
-            className="text-xl font-extrabold text-emerald-900 sm:text-2xl md:text-3xl whitespace-nowrap bg-[#8EDFA4] px-6"
+            className="text-xl font-extrabold text-emerald-900 sm:text-2xl md:text-3xl whitespace-nowrap bg-[#8EDFA4] px-4"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Spark!Bytes
           </h2>
+          
+          {/* Right line */}
+          <div className="flex-1 h-[4px] bg-emerald-900/60" />
         </div>
       </div>
 
@@ -100,19 +90,25 @@ export default function FeatureCarousel() {
               <div key={idx} className="flex flex-none items-center justify-center px-8 py-16 md:py-20" style={{ width: `${100 / slides.length}%` }}>
                 <div className="flex max-w-6xl flex-col items-center text-center gap-8">
                   {/* Title above image */}
-                  <h2 className="text-4xl font-extrabold leading-tight text-emerald-900 sm:text-5xl md:text-6xl" style={{ fontFamily: "var(--font-display)" }}>
-                    {s.title}
-                  </h2>
+                  <SlideIn direction="up" delay={0}>
+                    <h2 className="text-4xl font-extrabold leading-tight text-emerald-900 sm:text-5xl md:text-6xl" style={{ fontFamily: "var(--font-display)" }}>
+                      {s.title}
+                    </h2>
+                  </SlideIn>
                   
                   {/* Image */}
-                  <div className="flex h-[360px] w-[640px] items-center justify-center rounded-2xl bg-white/80 shadow-2xl md:h-[400px] md:w-[820px]">
-                    <Image src={s.img} alt="mock" width={160} height={40} className="opacity-80" />
-                  </div>
+                  <ScaleIn delay={0.15} scaleFrom={0.85}>
+                    <div className="flex h-[360px] w-[640px] items-center justify-center rounded-2xl bg-white/80 shadow-2xl md:h-[400px] md:w-[820px]">
+                      <Image src={s.img} alt="mock" width={160} height={40} className="opacity-80" />
+                    </div>
+                  </ScaleIn>
                   
                   {/* Description below image */}
-                  <p className="text-lg font-semibold leading-relaxed text-emerald-900/90 sm:text-xl max-w-2xl px-4" style={{ fontFamily: "var(--font-inter)" }}>
-                    {s.description}
-                  </p>
+                  <SlideIn direction="up" delay={0.3}>
+                    <p className="text-lg font-semibold leading-relaxed text-emerald-900/90 sm:text-xl max-w-2xl px-4" style={{ fontFamily: "var(--font-inter)" }}>
+                      {s.description}
+                    </p>
+                  </SlideIn>
                 </div>
               </div>
             ))}

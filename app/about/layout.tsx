@@ -29,11 +29,11 @@ export default function AboutLayout({
                                     }: {
     children: React.ReactNode;
 }) {
-    return (
-        <div
-            className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} 
-       antialiased bg-[#FFD6E7] text-emerald-900 min-h-screen flex flex-col`}
-        >
+  return (
+    <div
+      className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} 
+     antialiased text-emerald-900 min-h-screen flex flex-col`}
+    >
             <main className="flex-1">{children}</main>
         </div>
     );

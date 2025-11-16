@@ -29,11 +29,11 @@ export default function FRQLayout({
                                   }: {
     children: React.ReactNode;
 }) {
-    return (
-        <div
-            className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} 
-       antialiased bg-[#A5F3FC] text-emerald-900 min-h-screen flex flex-col`}
-        >
+  return (
+    <div
+      className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} 
+     antialiased text-emerald-900 min-h-screen flex flex-col`}
+    >
             <main className="flex-1">{children}</main>
         </div>
     );

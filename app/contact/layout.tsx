@@ -37,7 +37,7 @@ export default function ContactLayout({
   return (
     <div
       className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} ${inter.variable}
-      antialiased bg-[#A7E0A3] text-emerald-900 min-h-screen flex flex-col`}
+      antialiased text-emerald-900 min-h-screen flex flex-col`}
     >
       <main className="flex-1">{children}</main>
     </div>
