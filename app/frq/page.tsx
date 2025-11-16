@@ -16,13 +16,13 @@ function FAQItem({ question, answer }: FAQItemProps) {
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex w-full items-center justify-between text-left"
             >
-                <h3 className="text-xl font-bold text-emerald-900">{question}</h3>
-                <span className="ml-4 text-2xl font-bold text-emerald-900">
+                <h3 className="text-2xl font-bold text-emerald-900 sm:text-3xl" style={{ fontFamily: "var(--font-display)" }}>{question}</h3>
+                <span className="ml-4 text-3xl font-bold text-emerald-900 sm:text-4xl">
           {isOpen ? "−" : "+"}
         </span>
             </button>
             {isOpen && (
-                <p className="mt-4 text-lg leading-relaxed text-emerald-900">
+                <p className="mt-4 text-lg leading-relaxed text-emerald-900 font-semibold" style={{ fontFamily: "var(--font-inter)" }}>
                     {answer}
                 </p>
             )}
@@ -108,7 +108,7 @@ export default function FRQPage() {
                     className="mb-12 text-center text-6xl font-extrabold leading-tight tracking-tight text-emerald-900 sm:text-7xl md:text-8xl"
                     style={{ fontFamily: "var(--font-display)" }}
                 >
-                    FREQUENTLY ASKED QUESTIONS
+                    OUR FAQs
                 </h1>
 
                 <div className="space-y-4">
@@ -122,7 +122,7 @@ export default function FRQPage() {
                 </div>
 
                 <div className="mt-16 text-center">
-                    <p className="mb-6 text-lg text-emerald-900">
+                    <p className="mb-6 text-lg text-emerald-900 font-semibold" style={{ fontFamily: "var(--font-inter)" }}>
                         Still have questions? Email us!
                     </p>
                     <Link

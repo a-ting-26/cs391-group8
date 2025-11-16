@@ -37,13 +37,13 @@ export default function AboutPage() {
                     className="mb-12 text-center text-6xl font-extrabold leading-tight tracking-tight text-emerald-900 sm:text-7xl md:text-8xl"
                     style={{ fontFamily: "var(--font-display)" }}
                 >
-                    ABOUT BU FOOD FINDER
+                    ABOUT US
                 </h1>
 
-                <div className="space-y-8 text-lg leading-relaxed text-emerald-900">
+                <div className="space-y-8 text-lg leading-relaxed text-emerald-900" style={{ fontFamily: "var(--font-inter)" }}>
                     <div className="rounded-3xl border-[3px] border-emerald-900 bg-white p-8 shadow-[0_5px_0_0_rgba(16,78,61,0.5)]">
-                        <h2 className="mb-4 text-3xl font-bold">Our Mission</h2>
-                        <p>
+                        <h2 className="mb-4 text-3xl font-bold text-emerald-900" style={{ fontFamily: "var(--font-display)" }}>Our Mission</h2>
+                        <p className="font-semibold">
                             BU Food Finder connects Boston University students with free food
                             events across campus while helping reduce food waste. We believe
                             no student should go hungry, and no good food should go to waste.
@@ -51,13 +51,13 @@ export default function AboutPage() {
                     </div>
 
                     <div className="rounded-3xl border-[3px] border-emerald-900 bg-white p-8 shadow-[0_5px_0_0_rgba(16,78,61,0.5)]">
-                        <h2 className="mb-4 text-3xl font-bold">How It Works</h2>
-                        <p className="mb-4">
+                        <h2 className="mb-4 text-3xl font-bold text-emerald-900" style={{ fontFamily: "var(--font-display)" }}>How It Works</h2>
+                        <p className="mb-4 font-semibold">
                             <strong>For Students:</strong> Browse real-time listings of free
                             food events happening on campus. Get notified when food is
                             available near you.
                         </p>
-                        <p>
+                        <p className="font-semibold">
                             <strong>For Organizers:</strong> Post your events and leftover
                             food to reach students who need it most. Track engagement and make
                             a real impact.
@@ -65,8 +65,8 @@ export default function AboutPage() {
                     </div>
 
                     <div className="rounded-3xl border-[3px] border-emerald-900 bg-white p-8 shadow-[0_5px_0_0_rgba(16,78,61,0.5)]">
-                        <h2 className="mb-4 text-3xl font-bold">Our Impact</h2>
-                        <p>
+                        <h2 className="mb-4 text-3xl font-bold text-emerald-900" style={{ fontFamily: "var(--font-display)" }}>Our Impact</h2>
+                        <p className="font-semibold">
                             Since launching, we have helped connect thousands of students with
                             free meals, reducing food waste and building community across
                             campus. Join us in creating a more sustainable and connected BU!

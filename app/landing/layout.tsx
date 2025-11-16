@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Anton } from "next/font/google";
+import { Geist, Geist_Mono, Anton, Inter } from "next/font/google";
 import "../globals.css"; // use relative path (since this layout is inside /landing)
 
 const geistSans = Geist({
@@ -18,6 +18,11 @@ const anton = Anton({
   subsets: ["latin"],
 });
 
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "BU Food Finder | Discover Free Food on Campus",
   description:
@@ -31,7 +36,7 @@ export default function LandingLayout({
 }) {
   return (
     <div
-      className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} 
+      className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} ${inter.variable}
       antialiased bg-[#A7E0A3] text-emerald-900 min-h-screen flex flex-col`}
     >
       {/* Optional Navbar/Header for public pages */}

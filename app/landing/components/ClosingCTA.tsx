@@ -131,7 +131,7 @@ export default function ClosingCTA() {
             </h3>
             
             {/* Description */}
-            <p className="text-base leading-relaxed text-emerald-900/90 sm:text-lg">
+            <p className="text-base font-semibold leading-relaxed text-emerald-900/90 sm:text-lg" style={{ fontFamily: "var(--font-inter)" }}>
               Join thousands of BU students discovering free food events on campus. Connect with organizers, reduce waste, and never miss out on delicious opportunities.
             </p>
             

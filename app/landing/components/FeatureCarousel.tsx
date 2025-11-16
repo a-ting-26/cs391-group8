@@ -110,7 +110,7 @@ export default function FeatureCarousel() {
                   </div>
                   
                   {/* Description below image */}
-                  <p className="text-lg leading-relaxed text-emerald-900/90 sm:text-xl max-w-2xl px-4">
+                  <p className="text-lg font-semibold leading-relaxed text-emerald-900/90 sm:text-xl max-w-2xl px-4" style={{ fontFamily: "var(--font-inter)" }}>
                     {s.description}
                   </p>
                 </div>
