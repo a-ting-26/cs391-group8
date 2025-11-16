@@ -16,7 +16,7 @@ export default function FeatureCarousel() {
       { 
         title: "FILTER BY PREFERENCES", 
         description: "Set your dietary preferences and find events that match your needs.",
-        bg: "#F7C77E", 
+        bg: "#A5F3FC", 
         img: "/next.svg" 
       },
       { 
