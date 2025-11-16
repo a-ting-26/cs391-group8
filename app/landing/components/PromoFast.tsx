@@ -14,6 +14,7 @@ export default function PromoFast() {
           <span className="block text-[12vw] md:text-[8vw]">FIND FREE FOOD FAST</span>
         </h2>
       </div>
+      <div className="h-8" />
     </section>
   );
 }

@@ -79,7 +79,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="mx-auto flex h-screen max-w-7xl flex-col items-center justify-center px-6 text-center overflow-hidden">
+    <section className="relative mx-auto flex h-screen max-w-7xl flex-col items-center justify-center px-6 text-center overflow-hidden">
       <h1
         className="mx-auto mb-10 max-w-7xl text-6xl font-extrabold leading-[0.95] tracking-tight text-emerald-900 sm:text-8xl md:text-9xl"
         style={{ fontFamily: "var(--font-display)" }}
@@ -101,6 +101,25 @@ export default function Hero() {
         >
           I am an Organizer
         </button>
+      </div>
+
+      {/* Divider at bottom of Hero section */}
+      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center px-6 py-4">
+        <div className="flex items-center gap-6 w-full max-w-4xl mx-auto">
+          {/* Left line */}
+          <div className="flex-1 h-[4px] bg-emerald-900/60" />
+          
+          {/* Text */}
+          <h2
+            className="text-xl font-extrabold text-emerald-900 sm:text-2xl md:text-3xl whitespace-nowrap bg-[#8EDFA4] px-4"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Spark!Bytes
+          </h2>
+          
+          {/* Right line */}
+          <div className="flex-1 h-[4px] bg-emerald-900/60" />
+        </div>
       </div>
     </section>
   );
