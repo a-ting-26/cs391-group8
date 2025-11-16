@@ -12,6 +12,8 @@ import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { geocodeLocation } from "@/lib/mapbox/geocoding";
 
+import FilterChips from "./components/FilterChips";
+
 interface Event {
   id: string;
   organizer_name: string;
@@ -261,6 +263,31 @@ export default function StudentPage() {
           return normalizedTag === normalizedFilter || normalizedTag.includes(normalizedFilter);
         })
       );
+    // After you compute filteredOrganizers, also compute filteredEvents
+  const filteredEvents = currentEvents.filter((event) => {
+  const matchesSearch =
+    searchQuery === "" ||
+    event.organizer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    event.available_food.toLowerCase().includes(searchQuery.toLowerCase());
+
+  const matchesDietary =
+    dietary.length === 0 ||
+    dietary.some((diet) =>
+      (event.dietary_tags || []).some((tag) => {
+        const normalizedFilter = diet.toLowerCase().replace(/\s+/g, "-");
+        const normalizedTag = tag.toLowerCase().replace(/\s+/g, "-");
+        return normalizedTag === normalizedFilter || normalizedTag.includes(normalizedFilter);
+      })
+    );
+
+  const matchesAvailability =
+    availability === "" || event.availability === availability;
+
+  const matchesLocation =
+    location === "" || event.location === location;
+
+  return matchesSearch && matchesDietary && matchesAvailability && matchesLocation;
+});
 
     // Map availability filter to event availability
     const event = currentEvents.find((e) => e.id === organizer.id);
@@ -296,6 +323,32 @@ export default function StudentPage() {
       }
     });
   }
+
+// ✅ Add this block here
+const filteredEvents = currentEvents.filter((event) => {
+  const matchesSearch =
+    searchQuery === "" ||
+    event.organizer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    event.available_food.toLowerCase().includes(searchQuery.toLowerCase());
+
+  const matchesDietary =
+    dietary.length === 0 ||
+    dietary.some((diet) =>
+      (event.dietary_tags || []).some((tag) => {
+        const normalizedFilter = diet.toLowerCase().replace(/\s+/g, "-");
+        const normalizedTag = tag.toLowerCase().replace(/\s+/g, "-");
+        return normalizedTag === normalizedFilter || normalizedTag.includes(normalizedFilter);
+      })
+    );
+
+  const matchesAvailability =
+    availability === "" || event.availability === availability;
+
+  const matchesLocation =
+    location === "" || event.location === location;
+
+  return matchesSearch && matchesDietary && matchesAvailability && matchesLocation;
+});
 
   return (
     <div className="min-h-screen w-full bg-[#f9f8f4]">
@@ -360,7 +413,8 @@ export default function StudentPage() {
 
             {/* Map Section */}
             <div className="mt-12">
-              <StudentMap events={events} />
+            <StudentMap events={filteredEvents} />
+
             </div>
 
           </>
@@ -373,6 +427,7 @@ export default function StudentPage() {
 export function StudentMap({ events }: { events: Event[] }) {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const map = useRef<mapboxgl.Map | null>(null);
+  const markers = useRef<mapboxgl.Marker[]>([]);
 
   // initialize map once
   useEffect(() => {
@@ -387,44 +442,41 @@ export function StudentMap({ events }: { events: Event[] }) {
 
   // add markers when events change
   useEffect(() => {
-    if (!map.current || events.length === 0) return;
+    if (!map.current) return;
+
+    // clear old markers
+    markers.current.forEach(marker => marker.remove());
+    markers.current = [];
 
     const now = new Date();
     const activeEvents = events.filter(e => new Date(e.end_time) > now);
 
-    if (activeEvents.length === 0) {
-      console.log("No active events, keeping default map view.");
-      return;
-    }
+    const bounds = new mapboxgl.LngLatBounds();
 
-    map.current.on("load", () => {
-      const bounds = new mapboxgl.LngLatBounds();
+    activeEvents.forEach(event => {
+      if (event.lat && event.lng) {
+        const marker = new mapboxgl.Marker()
+          .setLngLat([event.lng, event.lat])
+          .setPopup(
+            new mapboxgl.Popup().setHTML(`
+              <strong>${event.organizer_name}</strong><br/>
+              🍴 ${event.available_food}<br/>
+              ⏰ ${calculateTimeLeft(event.end_time)}
+            `)
+          )
+          .addTo(map.current!);
 
-      activeEvents.forEach(event => {
-        if (event.lat && event.lng) {
-          console.log("Adding marker:", event.organizer_name, event.lat, event.lng);
-
-          new mapboxgl.Marker()
-            .setLngLat([event.lng, event.lat])
-            .setPopup(
-              new mapboxgl.Popup().setHTML(`
-                <strong>${event.organizer_name}</strong><br/>
-                🍴 ${event.available_food}<br/>
-                ⏰ ${calculateTimeLeft(event.end_time)}
-              `)
-            )
-            .addTo(map.current!);
-
-          bounds.extend([event.lng, event.lat]);
-        }
-      });
-
-      if (!bounds.isEmpty() && activeEvents.length > 1) {
-        map.current!.fitBounds(bounds, { padding: 50 });
+        markers.current.push(marker);
+        bounds.extend([event.lng, event.lat]);
       }
     });
+
+    if (!bounds.isEmpty() && activeEvents.length > 1) {
+      map.current.fitBounds(bounds, { padding: 50 });
+    }
   }, [events]);
 
   return <div ref={mapContainer} style={{ height: "500px", width: "100%" }} />;
 }
+
 
