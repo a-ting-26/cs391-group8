@@ -524,7 +524,7 @@ export default function ProfilePage() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold text-emerald-900 mb-1">
+                    <label className="block text-sm font-black uppercase tracking-wide text-emerald-900 mb-2">
                       Display Name
                     </label>
                     <input
@@ -533,21 +533,21 @@ export default function ProfilePage() {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         setStudentForm({ ...studentForm, display_name: e.target.value })
                       }
-                      className="w-full rounded-md border-2 border-emerald-900 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-300"
                       placeholder="Enter your display name"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-emerald-900 mb-1">
+                    <label className="block text-sm font-black uppercase tracking-wide text-emerald-900 mb-2">
                       Email
                     </label>
-                    <p className="text-gray-700 py-2">{email || "N/A"}</p>
+                    <p className="text-emerald-900 py-2">{email || "N/A"}</p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-emerald-900 mb-1">
+                      <label className="block text-sm font-black uppercase tracking-wide text-emerald-900 mb-2">
                         Major
                       </label>
                       <select
@@ -555,7 +555,7 @@ export default function ProfilePage() {
                         onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                           setStudentForm({ ...studentForm, major: e.target.value })
                         }
-                        className="w-full rounded-md border-2 border-emerald-900 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-300"
                       >
                         <option value="">Select major</option>
                         {MAJOR_OPTIONS.map((major) => (
@@ -567,7 +567,7 @@ export default function ProfilePage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-emerald-900 mb-1">
+                      <label className="block text-sm font-black uppercase tracking-wide text-emerald-900 mb-2">
                         Year
                       </label>
                       <select
@@ -575,7 +575,7 @@ export default function ProfilePage() {
                         onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                           setStudentForm({ ...studentForm, year: e.target.value })
                         }
-                        className="w-full rounded-md border-2 border-emerald-900 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-300"
                       >
                         <option value="">Select year</option>
                         {YEAR_OPTIONS.map((year) => (
@@ -588,20 +588,20 @@ export default function ProfilePage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-emerald-900 mb-1">
+                    <label className="block text-sm font-black uppercase tracking-wide text-emerald-900 mb-2">
                       Bio
                     </label>
                     <textarea
                       value={studentForm.bio}
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setStudentForm({ ...studentForm, bio: e.target.value })}
-                      className="w-full rounded-md border-2 border-emerald-900 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-300"
                       rows={4}
                       placeholder="Tell us about yourself..."
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-emerald-900 mb-2">
+                    <label className="block text-sm font-black uppercase tracking-wide text-emerald-900 mb-2">
                       Dietary Preferences
                     </label>
                     <div className="flex flex-wrap gap-2">
@@ -655,7 +655,7 @@ export default function ProfilePage() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold text-emerald-900 mb-1">
+                    <label className="block text-sm font-black uppercase tracking-wide text-emerald-900 mb-2">
                       Organization Name *
                     </label>
                     <input
@@ -664,14 +664,14 @@ export default function ProfilePage() {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         setVendorForm({ ...vendorForm, org_name: e.target.value })
                       }
-                      className="w-full rounded-md border-2 border-emerald-900 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-300"
                       placeholder="Enter organization name"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-emerald-900 mb-1">
+                    <label className="block text-sm font-black uppercase tracking-wide text-emerald-900 mb-2">
                       Contact Email *
                     </label>
                     <input
@@ -680,14 +680,14 @@ export default function ProfilePage() {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         setVendorForm({ ...vendorForm, contact_email: e.target.value })
                       }
-                      className="w-full rounded-md border-2 border-emerald-900 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-300"
                       placeholder="contact@bu.edu"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-emerald-900 mb-1">
+                    <label className="block text-sm font-black uppercase tracking-wide text-emerald-900 mb-2">
                       Website
                     </label>
                     <input
@@ -696,13 +696,13 @@ export default function ProfilePage() {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         setVendorForm({ ...vendorForm, website: e.target.value })
                       }
-                      className="w-full rounded-md border-2 border-emerald-900 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-300"
                       placeholder="https://example.org"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-emerald-900 mb-1">
+                    <label className="block text-sm font-black uppercase tracking-wide text-emerald-900 mb-2">
                       Description *
                     </label>
                     <textarea
@@ -710,7 +710,7 @@ export default function ProfilePage() {
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                         setVendorForm({ ...vendorForm, description: e.target.value })
                       }
-                      className="w-full rounded-md border-2 border-emerald-900 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-300"
                       rows={5}
                       placeholder="Tell students who you are, what events you run, and the kinds of food you'll post."
                       required
@@ -718,14 +718,14 @@ export default function ProfilePage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-emerald-900 mb-1">
+                    <label className="block text-sm font-black uppercase tracking-wide text-emerald-900 mb-2">
                       Status
                     </label>
-                    <p className="text-gray-700">
+                    <p className="text-emerald-900">
                       {vendorProfile?.is_active ? (
-                        <span className="text-green-600 font-semibold">Active</span>
+                        <span className="text-green-600 font-black">Active</span>
                       ) : (
-                        <span className="text-gray-500">Inactive</span>
+                        <span className="text-emerald-600">Inactive</span>
                       )}
                     </p>
                   </div>
@@ -757,17 +757,17 @@ export default function ProfilePage() {
                 Account Information
               </h2>
               <div className="space-y-3">
-                <div className="flex justify-between py-2 border-b border-gray-200">
-                  <span className="font-semibold text-emerald-900">Member Since</span>
-                  <span className="text-gray-700">{formatDate(accountCreatedAt)}</span>
+                <div className="flex justify-between py-2 border-b border-emerald-200">
+                  <span className="font-black uppercase tracking-wide text-emerald-900">Member Since</span>
+                  <span className="text-emerald-900">{formatDate(accountCreatedAt)}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-200">
-                  <span className="font-semibold text-emerald-900">Email</span>
-                  <span className="text-gray-700">{email || "N/A"}</span>
+                <div className="flex justify-between py-2 border-b border-emerald-200">
+                  <span className="font-black uppercase tracking-wide text-emerald-900">Email</span>
+                  <span className="text-emerald-900">{email || "N/A"}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-200">
-                  <span className="font-semibold text-emerald-900">Account Type</span>
-                  <span className="text-gray-700 capitalize">{userType || "N/A"}</span>
+                <div className="flex justify-between py-2 border-b border-emerald-200">
+                  <span className="font-black uppercase tracking-wide text-emerald-900">Account Type</span>
+                  <span className="text-emerald-900 uppercase">{userType || "N/A"}</span>
                 </div>
               </div>
             </div>
@@ -886,7 +886,7 @@ export default function ProfilePage() {
                       }
                       className="w-5 h-5 rounded border-2 border-emerald-900 text-emerald-900 focus:ring-2 focus:ring-emerald-500"
                     />
-                    <span className="font-semibold text-emerald-900">
+                    <span className="font-black uppercase tracking-wide text-emerald-900">
                       Enable email notifications for new events
                     </span>
                   </label>
