@@ -1,43 +1,45 @@
 "use client";
-import { useEffect, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
-import { Card, Avatar } from "antd";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
-export default function StudentProfilePage() {
-  const [session, setSession] = useState<any>(null);
+export default function ProfilePage() {
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const supabase = supabaseBrowser();
-
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
     });
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
-    });
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
   }, []);
 
-  if (!session) return <p>You must be logged in to view your profile.</p>;
-
-  const { user } = session;
-  const { email } = user;
-  const name = user.user_metadata?.full_name;
-  const image = user.user_metadata?.avatar_url;
+  if (!user) {
+    return <p>You must be logged in to view your profile.</p>;
+  }
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", marginTop: "4rem" }}>
-      <Card style={{ maxWidth: 600, width: "100%" }}>
-        <div style={{ display: "flex", alignItems: "center", marginBottom: "1rem" }}>
-          <Avatar src={image} size={64} />
-          <h2 style={{ marginLeft: 16 }}>{name}</h2>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Student Profile</h1>
+
+      <div className="flex items-center gap-4 mb-6">
+        <img
+          src={user.user_metadata?.avatar_url || user.user_metadata?.picture}
+          alt="Profile"
+          className="w-16 h-16 rounded-full border"
+        />
+        <div>
+          <p className="font-semibold">{user.user_metadata?.full_name}</p>
+          <p className="text-gray-600">{user.email}</p>
         </div>
-        <p><b>Email:</b> {email}</p>
-      </Card>
+      </div>
+
+      {/* Back button */}
+      <Link
+        href="/student"
+        className="inline-block px-4 py-2 bg-emerald-900 text-white rounded hover:bg-emerald-700"
+      >
+        ← Back to Events
+      </Link>
     </div>
   );
 }
