@@ -1,12 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import mapboxgl from "mapbox-gl";
+mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
+
+import React, { useState, useEffect, useRef } from "react";
 import StudentNavBar from "./components/StudentNavBar";
 import SearchBar from "./components/SearchBar";
 import OrganizerCard from "./components/OrganizerCard";
 import { upsertStudentProfile } from "@/lib/actions/upsertStudentProfile";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
+import { geocodeLocation } from "@/lib/mapbox/geocoding";
+
+import FilterChips from "./components/FilterChips";
 
 interface Event {
   id: string;
@@ -22,6 +28,8 @@ interface Event {
   end_time: string;
   availability: string;
   created_at: string;
+  lat?: number | null;
+  lng?: number | null;
 }
 
 interface Organizer {
@@ -186,12 +194,26 @@ export default function StudentPage() {
         credentials: "include",
       });
       const data = await response.json();
-      
+  
       if (!response.ok) {
         throw new Error(data.error || "Failed to fetch events");
       }
-      
-      setEvents(data.events || []);
+  
+      // Geocode each event's location into lat/lng
+      const enrichedEvents = await Promise.all(
+        (data.events || []).map(async (event: Event) => {
+          const coords = await geocodeLocation(event.location);
+          console.log("Geocoded:", event.location, coords);
+          return {
+            ...event,
+            lat: coords?.lat ?? null,
+            lng: coords?.lng ?? null,
+          };
+        })
+      );
+      console.log("Enriched events:", enrichedEvents);
+
+      setEvents(enrichedEvents);
     } catch (err: any) {
       setError(err.message || "Failed to load events");
     } finally {
@@ -241,6 +263,31 @@ export default function StudentPage() {
           return normalizedTag === normalizedFilter || normalizedTag.includes(normalizedFilter);
         })
       );
+    // After you compute filteredOrganizers, also compute filteredEvents
+  const filteredEvents = currentEvents.filter((event) => {
+  const matchesSearch =
+    searchQuery === "" ||
+    event.organizer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    event.available_food.toLowerCase().includes(searchQuery.toLowerCase());
+
+  const matchesDietary =
+    dietary.length === 0 ||
+    dietary.some((diet) =>
+      (event.dietary_tags || []).some((tag) => {
+        const normalizedFilter = diet.toLowerCase().replace(/\s+/g, "-");
+        const normalizedTag = tag.toLowerCase().replace(/\s+/g, "-");
+        return normalizedTag === normalizedFilter || normalizedTag.includes(normalizedFilter);
+      })
+    );
+
+  const matchesAvailability =
+    availability === "" || event.availability === availability;
+
+  const matchesLocation =
+    location === "" || event.location === location;
+
+  return matchesSearch && matchesDietary && matchesAvailability && matchesLocation;
+});
 
     // Map availability filter to event availability
     const event = currentEvents.find((e) => e.id === organizer.id);
@@ -276,6 +323,32 @@ export default function StudentPage() {
       }
     });
   }
+
+// ✅ Add this block here
+const filteredEvents = currentEvents.filter((event) => {
+  const matchesSearch =
+    searchQuery === "" ||
+    event.organizer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    event.available_food.toLowerCase().includes(searchQuery.toLowerCase());
+
+  const matchesDietary =
+    dietary.length === 0 ||
+    dietary.some((diet) =>
+      (event.dietary_tags || []).some((tag) => {
+        const normalizedFilter = diet.toLowerCase().replace(/\s+/g, "-");
+        const normalizedTag = tag.toLowerCase().replace(/\s+/g, "-");
+        return normalizedTag === normalizedFilter || normalizedTag.includes(normalizedFilter);
+      })
+    );
+
+  const matchesAvailability =
+    availability === "" || event.availability === availability;
+
+  const matchesLocation =
+    location === "" || event.location === location;
+
+  return matchesSearch && matchesDietary && matchesAvailability && matchesLocation;
+});
 
   return (
     <div className="min-h-screen w-full bg-[#f9f8f4]">
@@ -337,10 +410,73 @@ export default function StudentPage() {
                 </div>
               </div>
             )}
+
+            {/* Map Section */}
+            <div className="mt-12">
+            <StudentMap events={filteredEvents} />
+
+            </div>
+
           </>
         )}
       </main>
     </div>
   );
 }
+
+export function StudentMap({ events }: { events: Event[] }) {
+  const mapContainer = useRef<HTMLDivElement | null>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const markers = useRef<mapboxgl.Marker[]>([]);
+
+  // initialize map once
+  useEffect(() => {
+    if (map.current) return;
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current!,
+      style: "mapbox://styles/mapbox/streets-v11",
+      center: [-71.1054, 42.3505], // BU campus default
+      zoom: 14,
+    });
+  }, []);
+
+  // add markers when events change
+  useEffect(() => {
+    if (!map.current) return;
+
+    // clear old markers
+    markers.current.forEach(marker => marker.remove());
+    markers.current = [];
+
+    const now = new Date();
+    const activeEvents = events.filter(e => new Date(e.end_time) > now);
+
+    const bounds = new mapboxgl.LngLatBounds();
+
+    activeEvents.forEach(event => {
+      if (event.lat && event.lng) {
+        const marker = new mapboxgl.Marker()
+          .setLngLat([event.lng, event.lat])
+          .setPopup(
+            new mapboxgl.Popup().setHTML(`
+              <strong>${event.organizer_name}</strong><br/>
+              🍴 ${event.available_food}<br/>
+              ⏰ ${calculateTimeLeft(event.end_time)}
+            `)
+          )
+          .addTo(map.current!);
+
+        markers.current.push(marker);
+        bounds.extend([event.lng, event.lat]);
+      }
+    });
+
+    if (!bounds.isEmpty() && activeEvents.length > 1) {
+      map.current.fitBounds(bounds, { padding: 50 });
+    }
+  }, [events]);
+
+  return <div ref={mapContainer} style={{ height: "500px", width: "100%" }} />;
+}
+
 
