@@ -81,7 +81,7 @@ export default function FRQPage() {
         {
             question: "Is there a time limit for claiming food?",
             answer:
-                "Each post shows when the food was listed and when it's available until. First come, first served! Make sure to check the post details before heading over.",
+                "Each post shows when the food was listed and until when it's available. Make sure to check the post details before heading over.",
         },
         {
             question: "What if I have dietary restrictions?",
