@@ -76,6 +76,12 @@ export default function StudentNavBar() {
             >
               PROFILE
             </Link>
+            <Link
+              href="/student/reservations"
+              className="rounded-full border-[3px] border-emerald-900 bg-white px-6 py-3 text-sm font-black uppercase tracking-wide text-emerald-900 shadow-[0_3px_0_0_rgba(16,78,61,0.4)] hover:-translate-y-[1px] hover:shadow-[0_4px_0_0_rgba(16,78,61,0.5)] transition"
+            >
+              RESERVATIONS
+            </Link>
             <button
               onClick={async () => {
                 setIsMenuOpen(false);

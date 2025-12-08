@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import StudentNavBar from "../components/StudentNavBar";
 import VendorNavBar from "../../vendor/components/VendorNavBar";
@@ -68,6 +68,7 @@ const YEAR_OPTIONS = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate", "
 
 export default function ProfilePage() {
   const router = useRouter();
+  const pathname = usePathname();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -126,14 +127,30 @@ export default function ProfilePage() {
       setEmail(user.email ?? null);
       setAccountCreatedAt(user.created_at ? new Date(user.created_at) : null);
 
-      // Determine user type from roles
+      // Roles from metadata
       const roles: string[] = Array.isArray(user.user_metadata?.roles)
         ? (user.user_metadata.roles as string[])
         : [];
 
-      if (roles.includes("vendor") || roles.includes("organizer")) {
-        setUserType("vendor");
-        // Fetch vendor profile
+      // Detect context from route
+      const routeContext: "student" | "vendor" | null =
+        pathname?.startsWith("/student")
+          ? "student"
+          : pathname?.startsWith("/vendor")
+          ? "vendor"
+          : null;
+
+      // Decide effective userType
+      const effectiveType: "student" | "vendor" =
+        routeContext ??
+        (roles.includes("vendor") || roles.includes("organizer")
+          ? "vendor"
+          : "student");
+
+      setUserType(effectiveType);
+
+      if (effectiveType === "vendor") {
+        // --- Vendor profile & stats ---
         const { data: vendorData, error: vendorErr } = await supabase
           .from("vendor_profiles")
           .select("*")
@@ -149,7 +166,6 @@ export default function ProfilePage() {
             description: vendorData.description || "",
           });
 
-          // Fetch vendor events for statistics
           const { data: eventsData } = await supabase
             .from("events")
             .select("*")
@@ -161,9 +177,11 @@ export default function ProfilePage() {
             const currentEvents = eventsData.filter(
               (e) => new Date(e.end_time) >= now
             );
-            const pastEvents = eventsData.filter((e) => new Date(e.end_time) < now);
+            const pastEvents = eventsData.filter(
+              (e) => new Date(e.end_time) < now
+            );
 
-            setVendorEvents(eventsData.slice(0, 10)); // Last 10 events
+            setVendorEvents(eventsData.slice(0, 10));
             setVendorStats({
               totalEvents: eventsData.length,
               currentEvents: currentEvents.length,
@@ -172,9 +190,7 @@ export default function ProfilePage() {
           }
         }
       } else {
-        // Default to student
-        setUserType("student");
-        // Fetch student profile
+        // --- Student profile ---
         const { data: studentData, error: studentErr } = await supabase
           .from("student_profiles")
           .select("*")
@@ -196,7 +212,8 @@ export default function ProfilePage() {
 
       setLoading(false);
     })();
-  }, [router]);
+  }, [router, pathname]);
+
 
   const handleAvatarUpload = async (file: File) => {
     if (!userId) return;

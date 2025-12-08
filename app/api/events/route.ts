@@ -1,180 +1,198 @@
 // app/api/events/route.ts
 import { NextResponse } from "next/server";
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export async function GET(request: Request) {
-  try {
-    // match your working cookies pattern
-    const cookieStore = await cookies();
+/**
+ * GET /api/events
+ * Returns the current user's events (as organizer).
+ */
+export async function GET(req: Request) {
+  const supabase = await createSupabaseServerClient();
 
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-          set(name: string, value: string, options: CookieOptions) {
-            cookieStore.set({ name, value, ...options });
-          },
-          remove(name: string, options: CookieOptions) {
-            cookieStore.set({ name, value: "", ...options });
-          },
-        },
-      }
-    );
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-    // optional: read session (ok if unauthenticated)
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    // vendorOnly filter (if authenticated)
-    const url = new URL(request.url);
-    const vendorOnly = url.searchParams.get("vendorOnly") === "true";
-
-    let query = supabase.from("events").select("*");
-
-    if (vendorOnly && user) {
-      query = query.eq("organizer_id", user.id);
-    }
-
-    // newest first
-    query = query.order("start_time", { ascending: false });
-
-    const { data, error } = await query;
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    // derive availability client-side each request
-    const now = new Date();
-    const eventsWithUpdatedAvailability = (data ?? []).map((event: any) => {
-      const start = new Date(event.start_time);
-      const end = new Date(event.end_time);
-
-      let availability: "available-soon" | "available-now" | "ending-soon" = "available-soon";
-      if (now >= start && now <= end) availability = "available-now";
-      else if (now > end) availability = "ending-soon";
-
-      return { ...event, availability };
-    });
-
-    return NextResponse.json({ events: eventsWithUpdatedAvailability });
-  } catch (error: any) {
+  if (authError || !user) {
     return NextResponse.json(
-      { error: error?.message ?? "Internal server error" },
+      { error: "Unauthorized", events: [] },
+      { status: 401 }
+    );
+  }
+
+  // Adjust columns to whatever your dashboard uses
+  const { data: events, error } = await supabase
+    .from("events")
+    .select(
+      `
+      id,
+      name,
+      organizer_name,
+      location,
+      location_label,
+      address,
+      category,
+      start_time,
+      end_time,
+      created_at,
+      updated_at
+    `
+    )
+    .eq("organizer_id", user.id)
+    .order("start_time", { ascending: true });
+
+  if (error) {
+    console.error("GET /api/events error", error);
+    return NextResponse.json(
+      { error: "Failed to load events", events: [] },
       { status: 500 }
     );
   }
+
+  // If your dashboard expects a plain array instead of {events: [...]},
+  // change the line below to: return NextResponse.json(events ?? []);
+  return NextResponse.json({ events: events ?? [] });
 }
 
-export async function POST(request: Request) {
-  try {
-    const cookieStore = await cookies();
+/**
+ * POST /api/events
+ * Creates a new event + its food items.
+ */
+export async function POST(req: Request) {
+  const supabase = await createSupabaseServerClient();
+  const body = await req.json();
 
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-          set(name: string, value: string, options: CookieOptions) {
-            cookieStore.set({ name, value, ...options });
-          },
-          remove(name: string, options: CookieOptions) {
-            cookieStore.set({ name, value: "", ...options });
-          },
-        },
+  console.log("EVENT BODY", body); // temporary debug
+
+  const {
+    eventName,
+    location,
+    locationLabel,
+    address,
+    category,
+    dietaryTags,
+    description,
+    startTime,
+    endTime,
+    featuredPhoto,
+    foodItems,
+    lat,
+    lng,
+  } = body;
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    console.error("authError", authError);
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Look up organizer name from vendor_profiles (fallback to email)
+  let organizerName: string | null = null;
+
+  const { data: vendorProfile, error: vendorError } = await supabase
+    .from("vendor_profiles")
+    .select("org_name")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (vendorError) {
+    console.warn("vendorError", vendorError);
+  }
+
+  if (vendorProfile?.org_name) {
+    organizerName = vendorProfile.org_name;
+  } else {
+    organizerName = user.email ?? null;
+  }
+
+  // Validate required fields against the *new* payload
+  const missing: string[] = [];
+
+  if (!organizerName) missing.push("organizerName (vendor profile)");
+  if (!eventName) missing.push("eventName");
+  if (!location) missing.push("location");
+  if (!address) missing.push("address");
+  if (!category) missing.push("category");
+  if (!startTime) missing.push("startTime");
+  if (!endTime) missing.push("endTime");
+
+  if (!Array.isArray(foodItems) || foodItems.length === 0) {
+    missing.push("foodItems");
+  } else {
+    for (const [i, f] of (foodItems as any[]).entries()) {
+      if (!f.name || f.totalPortions == null || f.perStudentLimit == null) {
+        missing.push(`foodItems[${i}]`);
+        break;
       }
-    );
-
-    // must be authenticated to create events
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError) {
-      return NextResponse.json(
-        { error: `Authentication error: ${userError.message}` },
-        { status: 401 }
-      );
     }
-    if (!user) {
-      return NextResponse.json(
-        { error: "Unauthorized: Please log in to create events" },
-        { status: 401 }
-      );
-    }
+  }
 
-    const body = await request.json();
-    const {
-      organizerName,
-      location,
-      locationLabel,
-      availableFood,
-      category,
-      dietaryTags,
-      description,
-      startTime,
-      endTime,
-      featuredPhoto,
-    } = body;
-
-    // required fields
-    if (
-      !organizerName ||
-      !location ||
-      !locationLabel ||
-      !availableFood ||
-      !category ||
-      !startTime ||
-      !endTime
-    ) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
-
-    // compute availability at insert time
-    const now = new Date();
-    const start = new Date(startTime);
-    const end = new Date(endTime);
-    let availability: "available-soon" | "available-now" | "ending-soon" = "available-soon";
-    if (now >= start && now <= end) availability = "available-now";
-    else if (now > end) availability = "ending-soon";
-
-    const { data, error } = await supabase
-      .from("events")
-      .insert({
-        organizer_name: organizerName,
-        location,
-        location_label: locationLabel,
-        available_food: availableFood,
-        category,
-        dietary_tags: dietaryTags || [], // expects a text[] column
-        description: description || null,
-        featured_photo: featuredPhoto || null,
-        start_time: startTime,
-        end_time: endTime,
-        organizer_id: user.id,
-        availability,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json({ event: data }, { status: 201 });
-  } catch (error: any) {
+  if (missing.length > 0) {
+    console.warn("Missing fields:", missing);
     return NextResponse.json(
-      { error: error?.message ?? "Internal server error" },
+      { error: `Missing required fields: ${missing.join(", ")}` },
+      { status: 400 }
+    );
+  }
+
+  // Insert event
+  const { data: event, error: insertEventError } = await supabase
+    .from("events")
+    .insert({
+      name: eventName,
+      organizer_name: organizerName,
+      organizer_id: user.id,
+
+      location,
+      location_label: locationLabel,
+      address,
+      category,
+      availability: "open",          // 👈 NEW: satisfy NOT NULL
+      dietary_tags: dietaryTags ?? [],
+      description,
+      start_time: startTime,
+      end_time: endTime,
+      featured_photo: featuredPhoto,
+
+      lat,
+      lng,
+    })
+    .select("id")
+    .single();
+
+
+  if (insertEventError || !event) {
+    console.error("insertEventError", insertEventError);
+    return NextResponse.json(
+      { error: "Failed to create event record" },
       { status: 500 }
     );
   }
+
+  // Insert food items
+  const rows = (foodItems as any[]).map((f) => ({
+    event_id: event.id,
+    name: f.name,
+    total_portions: f.totalPortions,
+    per_student_limit: f.perStudentLimit,
+  }));
+
+  const { error: foodsError } = await supabase
+    .from("event_foods")
+    .insert(rows);
+
+  if (foodsError) {
+    console.error("foodsError", foodsError);
+    return NextResponse.json(
+      { error: "Event created, but failed to save food items" },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json({ success: true, eventId: event.id }, { status: 201 });
 }
