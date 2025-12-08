@@ -1,34 +1,70 @@
-import mbxGeocoding from "@mapbox/mapbox-sdk/services/geocoding";
+// lib/geocoding.ts
+export type Coordinates = {
+  lat: number;
+  lng: number;
+};
 
-const geocodingClient = mbxGeocoding({
-  accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN!,
-});
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
-const buLocations: Record<string, { lat: number; lng: number }> = {
-    "george-sherman-union": { lat: 42.3503, lng: -71.1062 },
-    "central-campus": { lat: 42.3505, lng: -71.1054 },
-    "warren-towers": { lat: 42.3492, lng: -71.1028 },
-    "questrom": { lat: 42.3489, lng: -71.1003 },
-    "fitrec": { lat: 42.3513, lng: -71.1045 },
-    "bu-beach": { lat: 42.3516, lng: -71.1082 },
-  };
-  
-export async function geocodeLocation(location: string) {
-  const normalized = location.toLowerCase().trim();
-  if (buLocations[normalized]) {
-    return buLocations[normalized];
+// simple in-memory cache so we don't re-hit Mapbox for the same address
+const cache = new Map<string, Coordinates | null>();
+
+/**
+ * Geocode a free-form address or place string using Mapbox.
+ * Returns { lat, lng } or null if no result.
+ */
+export async function geocodeLocation(
+  query: string
+): Promise<Coordinates | null> {
+  const trimmed = query?.trim();
+  if (!trimmed) return null;
+
+  // return cached result if we have one
+  const cached = cache.get(trimmed);
+  if (cached !== undefined) {
+    return cached;
   }
 
-  const query = `${location}, Boston University, Boston MA`;
-  const response = await fetch(
-    `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`
-  );
-  const data = await response.json();
-
-  if (data.features && data.features.length > 0) {
-    const [lng, lat] = data.features[0].center;
-    return { lat, lng, label: data.features[0].place_name };
+  if (!MAPBOX_TOKEN) {
+    console.warn(
+      "geocodeLocation: NEXT_PUBLIC_MAPBOX_TOKEN is not set – cannot geocode"
+    );
+    cache.set(trimmed, null);
+    return null;
   }
 
-  return null;
+  try {
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+      trimmed
+    )}.json?access_token=${MAPBOX_TOKEN}&limit=1`;
+
+    const res = await fetch(url);
+    if (!res.ok) {
+      console.error(
+        "geocodeLocation: Mapbox response not OK",
+        res.status,
+        res.statusText
+      );
+      cache.set(trimmed, null);
+      return null;
+    }
+
+    const data = await res.json();
+
+    if (!data.features || data.features.length === 0) {
+      console.warn("geocodeLocation: no features for query", trimmed);
+      cache.set(trimmed, null);
+      return null;
+    }
+
+    const [lng, lat] = data.features[0].center as [number, number];
+    const coords = { lat, lng };
+
+    cache.set(trimmed, coords);
+    return coords;
+  } catch (err) {
+    console.error("geocodeLocation: error while geocoding", err);
+    cache.set(trimmed, null);
+    return null;
+  }
 }
