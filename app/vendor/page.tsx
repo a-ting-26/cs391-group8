@@ -47,7 +47,7 @@ const calculateTimeLeft = (endTime: string): string => {
 const eventToOrganizer = (event: Event): Organizer => {
   return {
     id: event.id,
-    name: event.organizer_name,
+    name: event.name,
     location: event.location,
     locationLabel: event.location_label,
     availableFood: event.available_food ?? "",

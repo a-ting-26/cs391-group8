@@ -31,6 +31,7 @@ interface Event {
   address?: string | null;
   lat?: number | null;
   lng?: number | null;
+  name: string;
 }
 
 interface Organizer {
@@ -72,7 +73,7 @@ const calculateTimeLeft = (endTime: string): string => {
 const eventToOrganizer = (event: Event): Organizer => {
   return {
     id: event.id,
-    name: event.organizer_name,
+    name: event.name,
     location: event.location,
     locationLabel: event.location_label,
     availableFood:

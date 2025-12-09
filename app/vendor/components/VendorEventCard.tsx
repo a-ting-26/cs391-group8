@@ -17,6 +17,7 @@ export interface VendorEvent {
   end_time: string;
   availability: string;
   created_at: string;
+  name: string;
 }
 
 interface FoodReservation {
@@ -219,7 +220,7 @@ const VendorEventCard: React.FC<VendorEventCardProps> = ({
                 className="text-xl font-black uppercase tracking-wide text-emerald-900 truncate mb-1"
                 style={{ fontFamily: "var(--font-display)" }}
               >
-                {event.organizer_name || "My Event"}
+                {event.name || "My Event"}
               </h3>
               <p className="text-sm font-semibold text-emerald-800">
                 📍 {event.location_label}
