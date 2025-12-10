@@ -488,14 +488,96 @@ export function StudentMap({ events }: { events: Event[] }) {
     try {
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: "mapbox://styles/mapbox/streets-v11",
+        style: "mapbox://styles/mapbox/standard", // Mapbox Standard - 3D with dynamic lighting
         center: [-71.1054, 42.3505], // BU campus default
-        zoom: 14,
+        zoom: 16, // Slightly more zoomed in to show 3D buildings clearly
+        pitch: 45, // Higher pitch for more dramatic 3D effect (0-60 degrees)
+        bearing: 0, // Rotate map to the right (negative = clockwise/right)
+        antialias: true, // Better rendering quality
       });
 
+      // Mapbox Standard includes 3D buildings and dynamic lighting
       map.current.on("load", () => {
+        if (!map.current) return;
+        
         setMapLoaded(true);
-        map.current?.resize();
+        map.current.resize();
+
+        try {
+          // Ensure we're at a zoom level where 3D buildings are visible
+          // Mapbox Standard shows 3D buildings at zoom 15+, so ensure we're there
+          if (map.current.getZoom() < 15) {
+            map.current.zoomTo(15, { duration: 0 }); // Instant zoom to ensure 3D visibility
+          }
+
+          // Mapbox Standard style has 3D buildings built-in
+          // Now enable dynamic lighting with different presets
+          
+          // Set dynamic lighting preset (options: 'dawn', 'day', 'dusk', 'night')
+          // You can change this based on time of day or user preference
+          const hour = new Date().getHours();
+          let lightPreset: "dawn" | "day" | "dusk" | "night" = "day";
+          
+          if (hour >= 5 && hour < 8) {
+            lightPreset = "dawn";
+          } else if (hour >= 8 && hour < 18) {
+            lightPreset = "day";
+          } else if (hour >= 18 && hour < 21) {
+            lightPreset = "dusk";
+          } else {
+            lightPreset = "night";
+          }
+          
+          // Apply dynamic lighting preset
+          map.current.setConfigProperty("basemap", "lightPreset", lightPreset);
+          
+          // Enable shadows for 3D buildings
+          try {
+            map.current.setConfigProperty("basemap", "showShadows", true);
+          } catch (e) {
+            console.log("Could not enable shadows:", e);
+          }
+          
+          // Disable landmarks to reduce clutter
+          try {
+            map.current.setConfigProperty("basemap", "showPlaceLabels", false);
+            map.current.setConfigProperty("basemap", "showPointOfInterestLabels", false);
+            map.current.setConfigProperty("basemap", "showTransitLabels", false);
+          } catch (e) {
+            console.log("Could not disable landmarks:", e);
+          }
+          
+          // Also try to hide landmark layers directly
+          try {
+            const layers = map.current.getStyle().layers;
+            for (const layer of layers) {
+              // Hide layers that might contain landmarks or POI labels
+              if (layer.type === "symbol" && 
+                  (layer.id.includes("poi") || 
+                   layer.id.includes("landmark") || 
+                   layer.id.includes("place") ||
+                   (layer.layout && layer.layout["text-field"] && 
+                    (layer.id.includes("label") || layer.id.includes("name"))))) {
+                try {
+                  map.current.setLayoutProperty(layer.id, "visibility", "none");
+                } catch (e) {
+                  // Some layers might not support visibility property
+                }
+              }
+            }
+          } catch (e) {
+            console.log("Could not hide landmark layers:", e);
+          }
+          
+          // Optional: Add 3D terrain for enhanced elevation (if available)
+          if (map.current.getSource("mapbox-dem")) {
+            map.current.setTerrain({ source: "mapbox-dem", exaggeration: 1.2 });
+          }
+          
+          console.log(`Map loaded with ${lightPreset} lighting preset at zoom ${map.current.getZoom()}`);
+        } catch (e) {
+          console.log("Dynamic lighting setup:", e);
+        }
       });
 
       map.current.on("error", (e) => {
@@ -538,43 +620,47 @@ export function StudentMap({ events }: { events: Event[] }) {
     activeEvents.forEach((event) => {
       if (event.lat == null || event.lng == null) return;
 
-      const foodText = event.available_food || "Tap card for full menu";
-
       try {
         const marker = new mapboxgl.Marker()
           .setLngLat([event.lng, event.lat])
           .setPopup(
             new mapboxgl.Popup().setHTML(`
-              <strong>${event.organizer_name}</strong><br/>
-              🍴 ${foodText}<br/>
-              ⏰ ${calculateTimeLeft(event.end_time)}
+              <div style="padding: 8px;">
+                <strong style="font-size: 16px; color: #1F2937;">${event.name}</strong><br/>
+                <span style="color: #6B7280; font-size: 14px;">📍 ${event.location_label || event.location}</span><br/>
+                <span style="color: #6B7280; font-size: 14px;">⏰ ${calculateTimeLeft(event.end_time)}</span>
+              </div>
             `)
           )
           .addTo(map.current!);
 
         markers.current.push(marker);
         bounds.extend([event.lng, event.lat]);
-        console.log("Added marker for:", event.organizer_name, "at", [event.lng, event.lat]);
+        console.log("Added marker for:", event.name, "at", [event.lng, event.lat]);
       } catch (err) {
         console.error("Failed to add marker for event:", event.id, err);
       }
     });
 
-    // Single event: center on it
+    // Single event: center on it but maintain zoom for 3D
     if (activeEvents.length === 1) {
       const e = activeEvents[0];
       if (e.lat != null && e.lng != null) {
         map.current.setCenter([e.lng, e.lat]);
-        map.current.setZoom(15);
+        // Keep zoom at 15 to maintain 3D building visibility (not too zoomed in)
+        if (map.current.getZoom() < 15) {
+          map.current.setZoom(15);
+        }
       }
       return;
     }
 
-    // Multiple events: fit all pins
+    // Multiple events: fit all pins but ensure minimum zoom for 3D
     if (activeEvents.length > 1) {
       map.current.fitBounds(bounds, {
         padding: 50,
-        maxZoom: 15,
+        minZoom: 15, // Minimum zoom to ensure 3D buildings are visible
+        maxZoom: 18, // Don't zoom in too much
         duration: 0, // no animation, just jump
       });
     }
