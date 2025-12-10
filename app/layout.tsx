@@ -1,3 +1,4 @@
+import MapboxStyles from "./mapbox-styles";
 // app/layout.tsx
 import "./globals.css";
 import type { Metadata } from "next";
@@ -15,7 +16,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}>
-        {children}
+        <MapboxStyles />
+        {children} 
       </body>
     </html>
   );
