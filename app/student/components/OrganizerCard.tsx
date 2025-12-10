@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
 
 interface Organizer {
   id: number | string;
@@ -182,7 +181,7 @@ export default function OrganizerCard({
       {/* Expanded Content */}
       {isExpanded && (
         <div className="px-4 pb-6 pt-4 border-t border-emerald-200">
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div>
             {/* Left Side - Info + Food Items */}
             <div className="space-y-5">
               {/* Food Items */}
@@ -324,44 +323,6 @@ export default function OrganizerCard({
               </div>
             </div>
 
-            {/* Right Side - Featured Photo */}
-            <div className="flex flex-col">
-              <div className="relative h-full min-h-[300px] w-full overflow-hidden rounded-[25px] border-[3px] border-emerald-900 bg-emerald-100 shadow-[0_5px_0_0_rgba(16,78,61,0.3)]">
-                {organizer.featuredPhoto &&
-                organizer.featuredPhoto.startsWith("/") ? (
-                  <Image
-                    src={organizer.featuredPhoto}
-                    alt="Featured food"
-                    fill
-                    className="object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = "none";
-                    }}
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-emerald-700">
-                    <div className="flex flex-col items-center justify-center">
-                      <svg
-                        className="mb-4 h-20 w-20"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                      </svg>
-                      <p className="text-base font-semibold">Food Photo</p>
-                      <p className="text-sm">Coming soon</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
         </div>
       )}

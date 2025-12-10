@@ -82,7 +82,6 @@ const eventToOrganizer = (event: Event): Organizer => {
     timeLeft: calculateTimeLeft(event.end_time),
     category: event.category,
     dietaryTags: event.dietary_tags || [],
-    featuredPhoto: event.featured_photo,
     description: event.description,
   };
 };

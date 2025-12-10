@@ -75,7 +75,6 @@ export async function POST(req: Request) {
     description,
     startTime,
     endTime,
-    featuredPhoto,
     foodItems,
     lat,
     lng,
@@ -157,7 +156,6 @@ export async function POST(req: Request) {
       description,
       start_time: startTime,
       end_time: endTime,
-      featured_photo: featuredPhoto,
 
       lat,
       lng,

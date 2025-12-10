@@ -49,7 +49,6 @@ export default function CreateEventPage() {
     description: "",
     startTime: "",
     endTime: "",
-    featuredPhoto: "",
     lat: null as number | null,
     lng: null as number | null,
   });
@@ -256,7 +255,6 @@ export default function CreateEventPage() {
           description: formData.description,
           startTime: formData.startTime,
           endTime: formData.endTime,
-          featuredPhoto: formData.featuredPhoto || null,
 
           // per-food reservation data
           foodItems: foodItems.map((f) => ({

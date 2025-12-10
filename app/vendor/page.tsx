@@ -54,7 +54,6 @@ const eventToOrganizer = (event: Event): Organizer => {
     timeLeft: calculateTimeLeft(event.end_time),
     category: event.category,
     dietaryTags: event.dietary_tags || [],
-    featuredPhoto: event.featured_photo || undefined,
     description: event.description || undefined,
   };
 };

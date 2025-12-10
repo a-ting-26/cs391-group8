@@ -70,7 +70,6 @@ export default function ProfilePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [userType, setUserType] = useState<"student" | "vendor" | null>(null);
@@ -198,55 +197,6 @@ export default function ProfilePage() {
     })();
   }, [router]);
 
-  const handleAvatarUpload = async (file: File) => {
-    if (!userId) return;
-
-    setUploading(true);
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const supabase = supabaseBrowser();
-
-      // Upload to Supabase Storage
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${userId}-${Date.now()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(filePath, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("avatars").getPublicUrl(filePath);
-
-      // Update profile
-      const tableName = userType === "vendor" ? "vendor_profiles" : "student_profiles";
-      const { error: updateError } = await supabase
-        .from(tableName)
-        .update({ avatar_url: publicUrl })
-        .eq("id", userId);
-
-      if (updateError) throw updateError;
-
-      if (userType === "vendor") {
-        setVendorProfile({ ...vendorProfile!, avatar_url: publicUrl });
-      } else {
-        setStudentProfile({ ...studentProfile!, avatar_url: publicUrl });
-      }
-
-      setSuccess("Avatar updated successfully!");
-      setTimeout(() => setSuccess(null), 3000);
-    } catch (e: any) {
-      setError(e?.message || "Failed to upload avatar");
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const handleStudentSave = async () => {
     setSaving(true);
@@ -492,22 +442,7 @@ export default function ProfilePage() {
                       ? vendorProfile?.org_name || "Vendor"
                       : studentProfile?.display_name || email?.split("@")[0] || "Student"}
                   </h2>
-                  <p className="text-gray-600 mb-4">{email}</p>
-                  <label className="cursor-pointer">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleAvatarUpload(file);
-                      }}
-                      disabled={uploading}
-                    />
-                    <span className="inline-block rounded-full border-[3px] border-emerald-900 bg-[#BBF7D0] px-4 py-2 text-xs font-black uppercase tracking-wider text-emerald-900 shadow-[0_3px_0_0_rgba(16,78,61,0.4)] transition-all hover:-translate-y-1 hover:shadow-[0_4px_0_0_rgba(16,78,61,0.5)] hover:bg-[#86EFAC] active:translate-y-0 disabled:opacity-60">
-                      {uploading ? "Uploading..." : "Change Avatar"}
-                    </span>
-                  </label>
+                  <p className="text-gray-600">{email}</p>
                 </div>
               </div>
             </div>
