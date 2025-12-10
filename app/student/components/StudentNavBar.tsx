@@ -33,7 +33,7 @@ export default function StudentNavBar() {
   }, [isMenuOpen]);
 
   return (
-    <nav className="sticky top-0 z-50 mx-auto flex w-full items-center justify-between bg-[#f9f8f4] px-6 py-5 backdrop-blur-0">
+    <nav className="sticky top-0 z-50 mx-auto flex w-full items-center justify-between border-b-[3px] border-emerald-900 bg-[#f9f8f4] px-6 py-5 backdrop-blur-0">
       <Link
         href="/landing"
         className="text-3xl font-black uppercase tracking-widest text-emerald-900 transition-transform hover:scale-105"
