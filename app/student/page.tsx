@@ -621,18 +621,97 @@ export function StudentMap({ events }: { events: Event[] }) {
       if (event.lat == null || event.lng == null) return;
 
       try {
-        const marker = new mapboxgl.Marker()
+        // Create custom green marker to match app theme
+        const el = document.createElement("div");
+        el.style.width = "32px";
+        el.style.height = "32px";
+        el.style.borderRadius = "50%";
+        el.style.backgroundColor = "#8EDFA4"; // App's green color
+        el.style.border = "3px solid #065F46"; // emerald-900 border
+        el.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
+        el.style.cursor = "pointer";
+        el.style.position = "relative";
+        
+        // Add inner white dot
+        const innerDot = document.createElement("div");
+        innerDot.style.width = "10px";
+        innerDot.style.height = "10px";
+        innerDot.style.borderRadius = "50%";
+        innerDot.style.backgroundColor = "#FFFFFF";
+        innerDot.style.position = "absolute";
+        innerDot.style.top = "50%";
+        innerDot.style.left = "50%";
+        innerDot.style.transform = "translate(-50%, -50%)";
+        el.appendChild(innerDot);
+
+        const popup = new mapboxgl.Popup({ 
+          offset: 25,
+          className: "custom-popup",
+          maxWidth: "300px",
+          closeButton: true,
+          closeOnClick: false
+        }).setHTML(`
+          <div style="
+            padding: 12px; 
+            font-family: system-ui, -apple-system, sans-serif;
+          ">
+            <strong style="
+              font-size: 18px; 
+              color: #065F46; 
+              display: block; 
+              margin-bottom: 8px; 
+              line-height: 1.3;
+              font-weight: 900;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+            ">
+              ${event.name}
+            </strong>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <span style="
+                color: #065F46; 
+                font-size: 14px; 
+                display: flex; 
+                align-items: center; 
+                gap: 6px;
+                font-weight: 600;
+              ">
+                <span style="font-size: 16px;">📍</span>
+                <span>${event.location_label || event.location}</span>
+              </span>
+              <span style="
+                color: #065F46; 
+                font-size: 14px; 
+                display: flex; 
+                align-items: center; 
+                gap: 6px;
+                font-weight: 600;
+              ">
+                <span style="font-size: 16px;">⏰</span>
+                <span>${calculateTimeLeft(event.end_time)}</span>
+              </span>
+            </div>
+          </div>
+        `);
+
+        const marker = new mapboxgl.Marker({ element: el })
           .setLngLat([event.lng, event.lat])
-          .setPopup(
-            new mapboxgl.Popup().setHTML(`
-              <div style="padding: 8px;">
-                <strong style="font-size: 16px; color: #1F2937;">${event.name}</strong><br/>
-                <span style="color: #6B7280; font-size: 14px;">📍 ${event.location_label || event.location}</span><br/>
-                <span style="color: #6B7280; font-size: 14px;">⏰ ${calculateTimeLeft(event.end_time)}</span>
-              </div>
-            `)
-          )
+          .setPopup(popup)
           .addTo(map.current!);
+
+        // Style the popup after it's added to the map
+        popup.on('open', () => {
+          const popupElement = popup.getElement();
+          if (popupElement) {
+            popupElement.style.padding = '0';
+            
+            // Remove default Mapbox popup tip/arrow if it exists
+            const tip = popupElement.querySelector('.mapboxgl-popup-tip');
+            if (tip) {
+              (tip as HTMLElement).style.display = 'none';
+            }
+          }
+        });
 
         markers.current.push(marker);
         bounds.extend([event.lng, event.lat]);
@@ -667,11 +746,13 @@ export function StudentMap({ events }: { events: Event[] }) {
   }, [events, mapLoaded]);
 
   return (
-    <div
-      ref={mapContainer}
-      className="relative w-full overflow-hidden rounded-[30px]"
-      style={{ height: "500px" }}
-    />
+    <div className="w-full rounded-[30px] border-[3px] border-emerald-900 bg-white shadow-[0_5px_0_0_rgba(16,78,61,0.3)] overflow-hidden">
+      <div
+        ref={mapContainer}
+        className="relative w-full"
+        style={{ height: "500px" }}
+      />
+    </div>
   );
 }
 
