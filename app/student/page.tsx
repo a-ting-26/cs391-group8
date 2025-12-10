@@ -454,9 +454,8 @@ const filteredEvents = currentEvents.filter((event) => {
             )}
 
             {/* Map Section */}
-            <div className="mt-12">
-            <StudentMap events={filteredEvents} />
-
+            <div className="mt-12 mb-16">
+              <StudentMap events={filteredEvents} />
             </div>
 
           </>

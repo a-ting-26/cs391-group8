@@ -180,7 +180,7 @@ export default function OrganizerCard({
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="px-4 pb-6 pt-4 border-t border-emerald-200">
+        <div className="px-4 pb-6 pt-4">
           <div>
             {/* Left Side - Info + Food Items */}
             <div className="space-y-5">
@@ -217,19 +217,21 @@ export default function OrganizerCard({
                       return (
                         <div
                           key={food.id}
-                          className="flex flex-col gap-2 rounded-[18px] border-[2px] border-emerald-200 bg-[#F0FDF4] px-3 py-3"
+                          className="rounded-[20px] border-[2px] border-emerald-200 bg-white px-4 py-4"
                         >
-                          <div className="flex items-center justify-between gap-2">
-                            <div>
-                              <p className="text-sm font-bold text-emerald-900">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-base font-bold text-emerald-900 mb-1">
                                 {food.name}
                               </p>
-                              <p className="text-xs text-emerald-700">
-                                {remaining} left • Max {food.perStudentLimit} per
-                                student
+                              <p className="text-xs text-emerald-700 mb-1">
+                                {remaining} left • Max {food.perStudentLimit} per student
+                              </p>
+                              <p className="text-[11px] text-emerald-600">
+                                Total: {food.totalPortions} • Reserved: {food.totalReserved}
                               </p>
                               {food.userQuantity > 0 && (
-                                <p className="mt-1 text-xs font-semibold text-emerald-800">
+                                <p className="mt-2 text-xs font-semibold text-emerald-800">
                                   You reserved {food.userQuantity}
                                 </p>
                               )}
@@ -238,9 +240,9 @@ export default function OrganizerCard({
                               type="button"
                               disabled={!canReserve}
                               onClick={() => handleReserve(food.id)}
-                              className={`rounded-full border-[2px] border-emerald-900 px-4 py-2 text-xs font-black uppercase tracking-wide shadow-[0_3px_0_0_rgba(16,78,61,0.4)] transition-all ${
+                              className={`flex-shrink-0 rounded-full border-[2px] border-emerald-900 px-5 py-2.5 text-xs font-black uppercase tracking-wide shadow-[0_3px_0_0_rgba(16,78,61,0.4)] transition-all whitespace-nowrap ${
                                 canReserve
-                                  ? "bg-[#BBF7D0] text-emerald-900 hover:-translate-y-[1px] hover:shadow-[0_4px_0_0_rgba(16,78,61,0.5)]"
+                                  ? "bg-[#BBF7D0] text-emerald-900 hover:-translate-y-[1px] hover:shadow-[0_4px_0_0_rgba(16,78,61,0.5)] active:translate-y-0"
                                   : "bg-gray-200 text-gray-500 cursor-not-allowed"
                               }`}
                             >
@@ -254,12 +256,6 @@ export default function OrganizerCard({
                                 ? "Reserving..."
                                 : "Reserve"}
                             </button>
-                          </div>
-                          <div className="flex items-center justify-between text-[11px] text-emerald-700">
-                            <span>
-                              Total: {food.totalPortions} • Reserved:{" "}
-                              {food.totalReserved}
-                            </span>
                           </div>
                         </div>
                       );
@@ -295,32 +291,35 @@ export default function OrganizerCard({
                 >
                   TIME LEFT
                 </h5>
-                <div className="rounded-full bg-[#DBEAFE] px-4 py-2 inline-block">
+                <div className="rounded-full bg-[#DBEAFE] border-[2px] border-blue-300 px-4 py-2 inline-flex items-center gap-2">
+                  <span className="text-sm">⏱️</span>
                   <span className="text-sm font-bold uppercase tracking-wide text-emerald-900">
-                    ⏱️ {organizer.timeLeft}
+                    {organizer.timeLeft}
                   </span>
                 </div>
               </div>
 
               {/* Dietary tags */}
-              <div>
-                <h5
-                  className="mb-2 text-sm font-black uppercase tracking-wider text-emerald-900"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  DIETARY TAGS
-                </h5>
-                <div className="flex flex-wrap gap-2">
-                  {organizer.dietaryTags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full bg-[#BBF7D0] px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-900"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+              {organizer.dietaryTags.length > 0 && (
+                <div>
+                  <h5
+                    className="mb-2 text-sm font-black uppercase tracking-wider text-emerald-900"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    DIETARY TAGS
+                  </h5>
+                  <div className="flex flex-wrap gap-2">
+                    {organizer.dietaryTags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full bg-[#BBF7D0] border-[2px] border-emerald-300 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-emerald-900"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
           </div>
