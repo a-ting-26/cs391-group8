@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 
 interface Organizer {
@@ -15,17 +15,104 @@ interface Organizer {
   description?: string;
 }
 
+interface EventFood {
+  id: string;
+  name: string;
+  totalPortions: number;
+  perStudentLimit: number;
+  totalReserved: number;
+  userQuantity: number;
+}
+
 interface OrganizerCardProps {
   organizer: Organizer;
   isExpanded: boolean;
   onClick: () => void;
+  eventId?: string;         // 👈 new
+  endTime?: string;        // 👈 new (for “Ended” logic)
 }
 
 export default function OrganizerCard({
   organizer,
   isExpanded,
   onClick,
+  eventId,
+  endTime,
 }: OrganizerCardProps) {
+  const [foods, setFoods] = useState<EventFood[]>([]);
+  const [loadingFoods, setLoadingFoods] = useState(false);
+  const [foodsError, setFoodsError] = useState<string | null>(null);
+  const [reserveLoadingId, setReserveLoadingId] = useState<string | null>(null);
+  const [reserveError, setReserveError] = useState<string | null>(null);
+
+  const hasEnded =
+    !!endTime && new Date(endTime).getTime() <= new Date().getTime();
+
+  // Fetch event foods + user reservation info when expanded
+  useEffect(() => {
+    if (!isExpanded || !eventId) return;
+    const fetchFoods = async () => {
+      try {
+        setLoadingFoods(true);
+        setFoodsError(null);
+        const res = await fetch(`/api/event-foods?eventId=${eventId}`, {
+          credentials: "include",
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || "Failed to load food items");
+        }
+
+        setFoods(data.foods || []);
+      } catch (err: any) {
+        setFoodsError(err.message || "Failed to load food items");
+      } finally {
+        setLoadingFoods(false);
+      }
+    };
+
+    fetchFoods();
+  }, [isExpanded, eventId]);
+
+  const handleReserve = async (foodId: string) => {
+    if (!eventId) return;
+    try {
+      setReserveError(null);
+      setReserveLoadingId(foodId);
+
+      const res = await fetch("/api/reservations", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          eventFoodId: foodId,
+          quantity: 1, // reserve 1 portion at a time
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to reserve");
+      }
+
+      // Refresh foods to update remaining counts + userQuantity
+      const foodsRes = await fetch(`/api/event-foods?eventId=${eventId}`, {
+        credentials: "include",
+      });
+      const foodsData = await foodsRes.json();
+      if (foodsRes.ok) {
+        setFoods(foodsData.foods || []);
+      }
+    } catch (err: any) {
+      setReserveError(err.message || "Failed to reserve");
+    } finally {
+      setReserveLoadingId(null);
+    }
+  };
+
   return (
     <div
       className={`w-full rounded-[30px] border-[3px] border-emerald-900 bg-white shadow-[0_5px_0_0_rgba(16,78,61,0.3)] transition-all overflow-hidden ${
@@ -35,10 +122,7 @@ export default function OrganizerCard({
       }`}
     >
       {/* Collapsed Header */}
-      <button
-        onClick={onClick}
-        className="w-full p-4 text-left"
-      >
+      <button onClick={onClick} className="w-full p-4 text-left">
         <div className="flex items-center justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="mb-2">
@@ -99,32 +183,114 @@ export default function OrganizerCard({
       {isExpanded && (
         <div className="px-4 pb-6 pt-4 border-t border-emerald-200">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {/* Left Side - Organizer Info */}
+            {/* Left Side - Info + Food Items */}
             <div className="space-y-5">
+              {/* Food Items */}
               <div>
-                <h5 
+                <h5
                   className="mb-2 text-sm font-black uppercase tracking-wider text-emerald-900"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
                   AVAILABLE FOOD
                 </h5>
-                <p className="text-base font-semibold text-emerald-800">{organizer.availableFood}</p>
+
+                {loadingFoods ? (
+                  <p className="text-sm text-emerald-700">Loading food items…</p>
+                ) : foodsError ? (
+                  <p className="text-sm text-red-600">{foodsError}</p>
+                ) : foods.length === 0 ? (
+                  <p className="text-sm text-emerald-700">
+                    Menu coming soon. Check back later!
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {foods.map((food) => {
+                      const remaining =
+                        food.totalPortions - food.totalReserved;
+                      const remainingForUser =
+                        food.perStudentLimit - food.userQuantity;
+                      const canReserve =
+                        !hasEnded &&
+                        remaining > 0 &&
+                        remainingForUser > 0 &&
+                        reserveLoadingId !== food.id;
+
+                      return (
+                        <div
+                          key={food.id}
+                          className="flex flex-col gap-2 rounded-[18px] border-[2px] border-emerald-200 bg-[#F0FDF4] px-3 py-3"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div>
+                              <p className="text-sm font-bold text-emerald-900">
+                                {food.name}
+                              </p>
+                              <p className="text-xs text-emerald-700">
+                                {remaining} left • Max {food.perStudentLimit} per
+                                student
+                              </p>
+                              {food.userQuantity > 0 && (
+                                <p className="mt-1 text-xs font-semibold text-emerald-800">
+                                  You reserved {food.userQuantity}
+                                </p>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              disabled={!canReserve}
+                              onClick={() => handleReserve(food.id)}
+                              className={`rounded-full border-[2px] border-emerald-900 px-4 py-2 text-xs font-black uppercase tracking-wide shadow-[0_3px_0_0_rgba(16,78,61,0.4)] transition-all ${
+                                canReserve
+                                  ? "bg-[#BBF7D0] text-emerald-900 hover:-translate-y-[1px] hover:shadow-[0_4px_0_0_rgba(16,78,61,0.5)]"
+                                  : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                              }`}
+                            >
+                              {hasEnded
+                                ? "Ended"
+                                : remaining <= 0
+                                ? "Out"
+                                : remainingForUser <= 0
+                                ? "Limit Reached"
+                                : reserveLoadingId === food.id
+                                ? "Reserving..."
+                                : "Reserve"}
+                            </button>
+                          </div>
+                          <div className="flex items-center justify-between text-[11px] text-emerald-700">
+                            <span>
+                              Total: {food.totalPortions} • Reserved:{" "}
+                              {food.totalReserved}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {reserveError && (
+                  <p className="mt-2 text-xs text-red-600">{reserveError}</p>
+                )}
               </div>
 
+              {/* Description */}
               {organizer.description && (
                 <div>
-                  <h5 
+                  <h5
                     className="mb-2 text-sm font-black uppercase tracking-wider text-emerald-900"
                     style={{ fontFamily: "var(--font-display)" }}
                   >
                     DESCRIPTION
                   </h5>
-                  <p className="text-base font-semibold text-emerald-800">{organizer.description}</p>
+                  <p className="text-base font-semibold text-emerald-800">
+                    {organizer.description}
+                  </p>
                 </div>
               )}
 
+              {/* Time left */}
               <div>
-                <h5 
+                <h5
                   className="mb-2 text-sm font-black uppercase tracking-wider text-emerald-900"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
@@ -137,8 +303,9 @@ export default function OrganizerCard({
                 </div>
               </div>
 
+              {/* Dietary tags */}
               <div>
-                <h5 
+                <h5
                   className="mb-2 text-sm font-black uppercase tracking-wider text-emerald-900"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
@@ -160,7 +327,8 @@ export default function OrganizerCard({
             {/* Right Side - Featured Photo */}
             <div className="flex flex-col">
               <div className="relative h-full min-h-[300px] w-full overflow-hidden rounded-[25px] border-[3px] border-emerald-900 bg-emerald-100 shadow-[0_5px_0_0_rgba(16,78,61,0.3)]">
-                {organizer.featuredPhoto && organizer.featuredPhoto.startsWith("/") ? (
+                {organizer.featuredPhoto &&
+                organizer.featuredPhoto.startsWith("/") ? (
                   <Image
                     src={organizer.featuredPhoto}
                     alt="Featured food"
@@ -200,4 +368,3 @@ export default function OrganizerCard({
     </div>
   );
 }
-

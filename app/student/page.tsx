@@ -1,19 +1,25 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import mapboxgl from "mapbox-gl";
+mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
+
+import React, { useState, useEffect, useRef } from "react";
 import StudentNavBar from "./components/StudentNavBar";
 import SearchBar from "./components/SearchBar";
 import OrganizerCard from "./components/OrganizerCard";
 import { upsertStudentProfile } from "@/lib/actions/upsertStudentProfile";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
+import { geocodeLocation } from "@/lib/mapbox/geocoding";
+
+import FilterChips from "./components/FilterChips";
 
 interface Event {
   id: string;
   organizer_name: string;
   location: string;
   location_label: string;
-  available_food: string;
+  available_food?: string | null; // 👈 was string
   category: string;
   dietary_tags: string[];
   description?: string;
@@ -22,6 +28,10 @@ interface Event {
   end_time: string;
   availability: string;
   created_at: string;
+  address?: string | null;
+  lat?: number | null;
+  lng?: number | null;
+  name: string;
 }
 
 interface Organizer {
@@ -63,10 +73,11 @@ const calculateTimeLeft = (endTime: string): string => {
 const eventToOrganizer = (event: Event): Organizer => {
   return {
     id: event.id,
-    name: event.organizer_name,
+    name: event.name,
     location: event.location,
     locationLabel: event.location_label,
-    availableFood: event.available_food,
+    availableFood:
+      event.available_food || "See available items in the event details",
     timeLeft: calculateTimeLeft(event.end_time),
     category: event.category,
     dietaryTags: event.dietary_tags || [],
@@ -182,16 +193,55 @@ export default function StudentPage() {
     try {
       setLoading(true);
       setError(null);
+
       const response = await fetch("/api/events", {
         credentials: "include",
       });
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.error || "Failed to fetch events");
       }
-      
-      setEvents(data.events || []);
+
+      const rawEvents: Event[] = data.events || [];
+
+      // Only geocode when lat/lng are missing
+      const enrichedEvents: Event[] = await Promise.all(
+        rawEvents.map(async (event) => {
+          // If API already gave us coordinates, use them directly
+          if (event.lat != null && event.lng != null) {
+            return event;
+          }
+
+          // Prefer address, then location_label, then location
+          const query =
+            event.address ||
+            event.location_label ||
+            event.location;
+
+          if (!query) {
+            return { ...event, lat: null, lng: null };
+          }
+
+          try {
+            const coords = await geocodeLocation(query);
+            return {
+              ...event,
+              lat: coords?.lat ?? null,
+              lng: coords?.lng ?? null,
+            };
+          } catch (geoErr) {
+            console.warn("Geocoding failed for", query, geoErr);
+            return { ...event, lat: null, lng: null };
+          }
+        })
+      );
+
+      setEvents((prev) => {
+        const prevStr = JSON.stringify(prev);
+        const nextStr = JSON.stringify(enrichedEvents);
+        return prevStr === nextStr ? prev : enrichedEvents;
+      });
     } catch (err: any) {
       setError(err.message || "Failed to load events");
     } finally {
@@ -200,14 +250,16 @@ export default function StudentPage() {
   };
 
   useEffect(() => {
-    fetchEvents();
-    // Refresh events every 30 seconds to update time left
-    const interval = setInterval(() => {
+    fetchEvents(); // initial load
+
+    const onFocus = () => {
       fetchEvents();
-    }, 30000);
-    return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    };
+
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
   }, []);
+
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
@@ -241,6 +293,33 @@ export default function StudentPage() {
           return normalizedTag === normalizedFilter || normalizedTag.includes(normalizedFilter);
         })
       );
+    // After you compute filteredOrganizers, also compute filteredEvents
+  const filteredEvents = currentEvents.filter((event) => {
+  const matchesSearch =
+  searchQuery === "" ||
+  event.organizer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  (event.available_food ?? "")
+    .toLowerCase()
+    .includes(searchQuery.toLowerCase());
+
+  const matchesDietary =
+    dietary.length === 0 ||
+    dietary.some((diet) =>
+      (event.dietary_tags || []).some((tag) => {
+        const normalizedFilter = diet.toLowerCase().replace(/\s+/g, "-");
+        const normalizedTag = tag.toLowerCase().replace(/\s+/g, "-");
+        return normalizedTag === normalizedFilter || normalizedTag.includes(normalizedFilter);
+      })
+    );
+
+  const matchesAvailability =
+    availability === "" || event.availability === availability;
+
+  const matchesLocation =
+    location === "" || event.location === location;
+
+  return matchesSearch && matchesDietary && matchesAvailability && matchesLocation;
+});
 
     // Map availability filter to event availability
     const event = currentEvents.find((e) => e.id === organizer.id);
@@ -276,6 +355,34 @@ export default function StudentPage() {
       }
     });
   }
+
+// ✅ Add this block here
+const filteredEvents = currentEvents.filter((event) => {
+  const matchesSearch =
+    searchQuery === "" ||
+    event.organizer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (event.available_food ?? "")
+    .toLowerCase()
+    .includes(searchQuery.toLowerCase());
+
+  const matchesDietary =
+    dietary.length === 0 ||
+    dietary.some((diet) =>
+      (event.dietary_tags || []).some((tag) => {
+        const normalizedFilter = diet.toLowerCase().replace(/\s+/g, "-");
+        const normalizedTag = tag.toLowerCase().replace(/\s+/g, "-");
+        return normalizedTag === normalizedFilter || normalizedTag.includes(normalizedFilter);
+      })
+    );
+
+  const matchesAvailability =
+    availability === "" || event.availability === availability;
+
+  const matchesLocation =
+    location === "" || event.location === location;
+
+  return matchesSearch && matchesDietary && matchesAvailability && matchesLocation;
+});
 
   return (
     <div className="min-h-screen w-full bg-[#f9f8f4]">
@@ -317,14 +424,22 @@ export default function StudentPage() {
           <>
             {filteredOrganizers.length > 0 ? (
               <div className="space-y-4">
-                {filteredOrganizers.map((organizer) => (
-                  <OrganizerCard
-                    key={organizer.id}
-                    organizer={organizer}
-                    isExpanded={expandedOrganizerId === organizer.id}
-                    onClick={() => handleCardClick(organizer.id)}
-                  />
-                ))}
+                {filteredOrganizers.map((organizer) => {
+                  const eventForOrganizer = currentEvents.find(
+                    (e) => e.id === organizer.id
+                  );
+
+                  return (
+                    <OrganizerCard
+                      key={organizer.id}
+                      organizer={organizer}
+                      isExpanded={expandedOrganizerId === organizer.id}
+                      onClick={() => handleCardClick(organizer.id)}
+                      eventId={String(organizer.id)}
+                      endTime={eventForOrganizer?.end_time}
+                    />
+                  );
+                })}
               </div>
             ) : (
               <div className="py-16 text-center">
@@ -337,10 +452,108 @@ export default function StudentPage() {
                 </div>
               </div>
             )}
+
+            {/* Map Section */}
+            <div className="mt-12">
+            <StudentMap events={filteredEvents} />
+
+            </div>
+
           </>
         )}
       </main>
     </div>
   );
 }
+
+export function StudentMap({ events }: { events: Event[] }) {
+  const mapContainer = useRef<HTMLDivElement | null>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const markers = useRef<mapboxgl.Marker[]>([]);
+  const [mapLoaded, setMapLoaded] = useState(false);
+
+  // initialize map once
+  useEffect(() => {
+    if (map.current) return;
+
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current!,
+      style: "mapbox://styles/mapbox/streets-v11",
+      center: [-71.1054, 42.3505], // BU campus default
+      zoom: 14,
+    });
+
+    map.current.on("load", () => {
+      setMapLoaded(true);
+      // just in case container size changed before load
+      map.current?.resize();
+    });
+  }, []);
+
+  // add markers + recenter whenever events change AND map is loaded
+  useEffect(() => {
+    if (!map.current || !mapLoaded) return;
+
+    // Remove any existing markers
+    markers.current.forEach((marker) => marker.remove());
+    markers.current = [];
+
+    const now = new Date();
+    const activeEvents = events.filter(
+      (e) => new Date(e.end_time) > now && e.lat != null && e.lng != null
+    );
+
+    if (activeEvents.length === 0) {
+      return;
+    }
+
+    const bounds = new mapboxgl.LngLatBounds();
+
+    activeEvents.forEach((event) => {
+      if (event.lat == null || event.lng == null) return;
+
+      const foodText = event.available_food || "Tap card for full menu";
+
+      const marker = new mapboxgl.Marker()
+        .setLngLat([event.lng, event.lat])
+        .setPopup(
+          new mapboxgl.Popup().setHTML(`
+            <strong>${event.organizer_name}</strong><br/>
+            🍴 ${foodText}<br/>
+            ⏰ ${calculateTimeLeft(event.end_time)}
+          `)
+        )
+        .addTo(map.current!);
+
+      markers.current.push(marker);
+      bounds.extend([event.lng, event.lat]);
+    });
+
+    // Single event: center on it
+    if (activeEvents.length === 1) {
+      const e = activeEvents[0];
+      if (e.lat != null && e.lng != null) {
+        map.current.setCenter([e.lng, e.lat])
+        map.current.setZoom(15);
+      }
+      return;
+    }
+
+    // Multiple events: fit all pins
+    map.current.fitBounds(bounds, {
+      padding: 50,
+      maxZoom: 15,
+      duration: 0, // no animation, just jump
+    });
+  }, [events, mapLoaded]);
+
+  return (
+    <div
+      ref={mapContainer}
+      className="relative w-full overflow-hidden rounded-[30px]"
+      style={{ height: "500px" }}
+    />
+  );
+}
+
 

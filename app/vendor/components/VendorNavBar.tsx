@@ -81,7 +81,7 @@ export default function VendorNavBar() {
                 setIsMenuOpen(false);
                 const supabase = supabaseBrowser();
                 await supabase.auth.signOut();
-                router.push("/auth/login");
+                router.push("/landing");
               }}
               className="rounded-full border-[3px] border-emerald-900 bg-white px-6 py-3 text-center text-sm font-black uppercase tracking-wider text-emerald-900 shadow-[0_5px_0_0_rgba(16,78,61,0.4)] transition-all hover:-translate-y-1 hover:bg-red-50 hover:text-red-700 hover:shadow-[0_7px_0_0_rgba(16,78,61,0.5)] active:translate-y-0"
             >

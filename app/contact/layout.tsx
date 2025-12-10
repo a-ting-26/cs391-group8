@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Anton, Inter } from "next/font/google";
-import "../globals.css"; // use relative path (since this layout is inside /landing)
+import "../globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,12 +24,12 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "BU Food Finder | Discover Free Food on Campus",
+  title: "Contact Us | BU Food Finder",
   description:
-    "Your campus guide to free food, less waste, and more connection.",
+    "Get in touch with BU Food Finder - your campus guide to free food and reducing waste.",
 };
 
-export default function LandingLayout({
+export default function ContactLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -39,15 +39,8 @@ export default function LandingLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} ${inter.variable}
       antialiased text-emerald-900 min-h-screen flex flex-col`}
     >
-      {/* Optional Navbar/Header for public pages */}
-      {/* <Navbar /> */}
-
       <main className="flex-1">{children}</main>
-
-      {/* Optional footer */}
-      {/* <footer className="py-4 text-center text-sm text-emerald-800">
-        © {new Date().getFullYear()} BU Food Finder
-      </footer> */}
     </div>
   );
 }
+

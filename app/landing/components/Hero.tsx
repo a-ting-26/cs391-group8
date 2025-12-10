@@ -3,6 +3,8 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
+import FadeIn from "../../components/animations/FadeIn";
+import ScaleIn from "../../components/animations/ScaleIn";
 
 export default function Hero() {
   const router = useRouter();
@@ -79,28 +81,53 @@ export default function Hero() {
   };
 
   return (
-    <section className="mx-auto flex h-screen max-w-7xl flex-col items-center justify-center px-6 text-center overflow-hidden">
-      <h1
-        className="mx-auto mb-10 max-w-7xl text-6xl font-extrabold leading-[0.95] tracking-tight text-emerald-900 sm:text-8xl md:text-9xl"
-        style={{ fontFamily: "var(--font-display)" }}
-      >
-        YOUR CAMPUS GUIDE TO FREE FOOD, LESS WASTE, AND MORE CONNECTION.
-      </h1>
+    <section className="relative mx-auto flex h-screen max-w-7xl flex-col items-center justify-center px-6 text-center overflow-hidden">
+      <FadeIn>
+        <h1
+          className="mx-auto mb-10 max-w-7xl text-6xl font-extrabold leading-[0.95] tracking-tight text-emerald-900 sm:text-8xl md:text-9xl"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          YOUR CAMPUS GUIDE TO FREE FOOD, LESS WASTE, AND MORE CONNECTION.
+        </h1>
+      </FadeIn>
 
       <div className="mt-2 flex flex-col items-center justify-center gap-8 sm:flex-row">
-        <button
-          onClick={handleStudentClick}
-          className="rounded-full border-[3px] border-emerald-900 bg-[#FEF3C7] px-12 py-5 text-xl font-black uppercase tracking-widest text-emerald-900 shadow-[0_7px_0_0_rgba(16,78,61,0.6)] transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:shadow-[0_10px_0_0_rgba(16,78,61,0.7)] hover:bg-[#FDE68A] active:translate-y-0"
-        >
-          I am a Student
-        </button>
+        <ScaleIn delay={0.2} scaleFrom={0.7}>
+          <button
+            onClick={handleStudentClick}
+            className="rounded-full border-[3px] border-emerald-900 bg-[#FEF3C7] px-12 py-5 text-xl font-black uppercase tracking-widest text-emerald-900 shadow-[0_7px_0_0_rgba(16,78,61,0.6)] transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:shadow-[0_10px_0_0_rgba(16,78,61,0.7)] hover:bg-[#FDE68A] active:translate-y-0"
+          >
+            I am a Student
+          </button>
+        </ScaleIn>
 
-        <button
-          onClick={handleOrganizerClick}
-          className="rounded-full border-[3px] border-emerald-900 bg-[#DBEAFE] px-12 py-5 text-xl font-black uppercase tracking-widest text-emerald-900 shadow-[0_7px_0_0_rgba(16,78,61,0.6)] transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:shadow-[0_10px_0_0_rgba(16,78,61,0.7)] hover:bg-[#BFDBFE] active:translate-y-0"
-        >
-          I am an Organizer
-        </button>
+        <ScaleIn delay={0.3} scaleFrom={0.7}>
+          <button
+            onClick={handleOrganizerClick}
+            className="rounded-full border-[3px] border-emerald-900 bg-[#DBEAFE] px-12 py-5 text-xl font-black uppercase tracking-widest text-emerald-900 shadow-[0_7px_0_0_rgba(16,78,61,0.6)] transition-all duration-200 ease-out hover:-translate-y-1 hover:scale-105 hover:shadow-[0_10px_0_0_rgba(16,78,61,0.7)] hover:bg-[#BFDBFE] active:translate-y-0"
+          >
+            I am an Organizer
+          </button>
+        </ScaleIn>
+      </div>
+
+      {/* Divider at bottom of Hero section */}
+      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center px-6 py-4">
+        <div className="flex items-center gap-6 w-full max-w-4xl mx-auto">
+          {/* Left line */}
+          <div className="flex-1 h-[4px] bg-emerald-900/60" />
+          
+          {/* Text */}
+          <h2
+            className="text-xl font-extrabold text-emerald-900 sm:text-2xl md:text-3xl whitespace-nowrap bg-[#8EDFA4] px-4"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Spark!Bytes
+          </h2>
+          
+          {/* Right line */}
+          <div className="flex-1 h-[4px] bg-emerald-900/60" />
+        </div>
       </div>
     </section>
   );

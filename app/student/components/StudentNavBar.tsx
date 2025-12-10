@@ -70,11 +70,17 @@ export default function StudentNavBar() {
             className="absolute right-0 top-14 z-50 flex flex-col gap-3"
           >
             <Link
-              href="/profile"
+              href="/student/profile"
               onClick={() => setIsMenuOpen(false)}
               className="rounded-full border-[3px] border-emerald-900 bg-white px-6 py-3 text-center text-sm font-black uppercase tracking-wider text-emerald-900 shadow-[0_5px_0_0_rgba(16,78,61,0.4)] transition-all hover:-translate-y-1 hover:shadow-[0_7px_0_0_rgba(16,78,61,0.5)] active:translate-y-0"
             >
               PROFILE
+            </Link>
+            <Link
+              href="/student/reservations"
+              className="rounded-full border-[3px] border-emerald-900 bg-white px-6 py-3 text-sm font-black uppercase tracking-wide text-emerald-900 shadow-[0_3px_0_0_rgba(16,78,61,0.4)] hover:-translate-y-[1px] hover:shadow-[0_4px_0_0_rgba(16,78,61,0.5)] transition"
+            >
+              RESERVATIONS
             </Link>
             <button
               onClick={async () => {

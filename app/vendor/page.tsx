@@ -4,23 +4,11 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import VendorNavBar from "./components/VendorNavBar";
-import OrganizerCard from "../student/components/OrganizerCard";
+import VendorEventCard, {
+  VendorEvent,
+} from "./components/VendorEventCard";
 
-interface Event {
-  id: string;
-  organizer_name: string;
-  location: string;
-  location_label: string;
-  available_food: string;
-  category: string;
-  dietary_tags: string[];
-  description?: string;
-  featured_photo?: string;
-  start_time: string;
-  end_time: string;
-  availability: string;
-  created_at: string;
-}
+type Event = VendorEvent;
 
 interface Organizer {
   id: number | string;
@@ -59,10 +47,10 @@ const calculateTimeLeft = (endTime: string): string => {
 const eventToOrganizer = (event: Event): Organizer => {
   return {
     id: event.id,
-    name: event.organizer_name,
+    name: event.name,
     location: event.location,
     locationLabel: event.location_label,
-    availableFood: event.available_food,
+    availableFood: event.available_food ?? "",
     timeLeft: calculateTimeLeft(event.end_time),
     category: event.category,
     dietaryTags: event.dietary_tags || [],
@@ -100,23 +88,26 @@ export default function VendorPage() {
   };
 
   useEffect(() => {
+  fetchEvents(); // initial load
+
+  const onFocus = () => {
     fetchEvents();
-    // Refresh events every 30 seconds to update time left
-    const interval = setInterval(() => {
-      fetchEvents();
-    }, 30000);
-    return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
+
+  window.addEventListener("focus", onFocus);
+  return () => window.removeEventListener("focus", onFocus);
+}, []);
 
   const handleCardClick = (eventId: string | number) => {
     setExpandedEventId(expandedEventId === eventId ? null : eventId);
   };
 
   // Filter events: current (end_time in future) and past (end_time in past)
+// Filter events: current and past (same as before)
   const now = new Date();
   const currentEvents = events.filter((event) => new Date(event.end_time) >= now);
   const pastEvents = events.filter((event) => new Date(event.end_time) < now);
+
 
   // Convert to Organizer format
   const currentOrganizers = currentEvents.map(eventToOrganizer);
@@ -170,14 +161,15 @@ export default function VendorPage() {
               >
                 Current Events
               </h2>
-              {currentOrganizers.length > 0 ? (
+              {currentEvents.length > 0 ? (
                 <div className="space-y-4">
-                  {currentOrganizers.map((organizer) => (
-                    <OrganizerCard
-                      key={organizer.id}
-                      organizer={organizer}
-                      isExpanded={expandedEventId === organizer.id}
-                      onClick={() => handleCardClick(organizer.id)}
+                  {currentEvents.map((event) => (
+                    <VendorEventCard
+                      key={event.id}
+                      event={event}
+                      isExpanded={expandedEventId === event.id}
+                      onToggle={() => handleCardClick(event.id)}
+                      onClosed={fetchEvents}
                     />
                   ))}
                 </div>
@@ -198,14 +190,14 @@ export default function VendorPage() {
               >
                 Past Events
               </h2>
-              {pastOrganizers.length > 0 ? (
+              {pastEvents.length > 0 ? (
                 <div className="space-y-4">
-                  {pastOrganizers.map((organizer) => (
-                    <OrganizerCard
-                      key={organizer.id}
-                      organizer={organizer}
-                      isExpanded={expandedEventId === organizer.id}
-                      onClick={() => handleCardClick(organizer.id)}
+                  {pastEvents.map((event) => (
+                    <VendorEventCard
+                      key={event.id}
+                      event={event}
+                      isExpanded={expandedEventId === event.id}
+                      onToggle={() => handleCardClick(event.id)}
                     />
                   ))}
                 </div>
