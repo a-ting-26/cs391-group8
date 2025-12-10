@@ -1,6 +1,7 @@
 "use client";
 
 import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
 import React, { useState, useEffect, useRef } from "react";
@@ -474,25 +475,43 @@ export function StudentMap({ events }: { events: Event[] }) {
 
   // initialize map once
   useEffect(() => {
-    if (map.current) return;
+    if (map.current || !mapContainer.current) return;
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current!,
-      style: "mapbox://styles/mapbox/streets-v11",
-      center: [-71.1054, 42.3505], // BU campus default
-      zoom: 14,
-    });
+    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+    if (!token) {
+      console.error("Mapbox token not found");
+      return;
+    }
 
-    map.current.on("load", () => {
-      setMapLoaded(true);
-      // just in case container size changed before load
-      map.current?.resize();
-    });
+    mapboxgl.accessToken = token;
+
+    try {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: "mapbox://styles/mapbox/streets-v11",
+        center: [-71.1054, 42.3505], // BU campus default
+        zoom: 14,
+      });
+
+      map.current.on("load", () => {
+        setMapLoaded(true);
+        map.current?.resize();
+      });
+
+      map.current.on("error", (e) => {
+        console.error("Mapbox error:", e);
+      });
+    } catch (err) {
+      console.error("Failed to initialize map:", err);
+    }
   }, []);
 
   // add markers + recenter whenever events change AND map is loaded
   useEffect(() => {
-    if (!map.current || !mapLoaded) return;
+    if (!map.current || !mapLoaded) {
+      console.log("Map not ready:", { hasMap: !!map.current, mapLoaded });
+      return;
+    }
 
     // Remove any existing markers
     markers.current.forEach((marker) => marker.remove());
@@ -503,7 +522,14 @@ export function StudentMap({ events }: { events: Event[] }) {
       (e) => new Date(e.end_time) > now && e.lat != null && e.lng != null
     );
 
+    console.log("Adding markers:", {
+      totalEvents: events.length,
+      activeEvents: activeEvents.length,
+      eventsWithCoords: events.filter(e => e.lat != null && e.lng != null).length,
+    });
+
     if (activeEvents.length === 0) {
+      console.log("No active events with coordinates to display");
       return;
     }
 
@@ -514,37 +540,44 @@ export function StudentMap({ events }: { events: Event[] }) {
 
       const foodText = event.available_food || "Tap card for full menu";
 
-      const marker = new mapboxgl.Marker()
-        .setLngLat([event.lng, event.lat])
-        .setPopup(
-          new mapboxgl.Popup().setHTML(`
-            <strong>${event.organizer_name}</strong><br/>
-            🍴 ${foodText}<br/>
-            ⏰ ${calculateTimeLeft(event.end_time)}
-          `)
-        )
-        .addTo(map.current!);
+      try {
+        const marker = new mapboxgl.Marker()
+          .setLngLat([event.lng, event.lat])
+          .setPopup(
+            new mapboxgl.Popup().setHTML(`
+              <strong>${event.organizer_name}</strong><br/>
+              🍴 ${foodText}<br/>
+              ⏰ ${calculateTimeLeft(event.end_time)}
+            `)
+          )
+          .addTo(map.current!);
 
-      markers.current.push(marker);
-      bounds.extend([event.lng, event.lat]);
+        markers.current.push(marker);
+        bounds.extend([event.lng, event.lat]);
+        console.log("Added marker for:", event.organizer_name, "at", [event.lng, event.lat]);
+      } catch (err) {
+        console.error("Failed to add marker for event:", event.id, err);
+      }
     });
 
     // Single event: center on it
     if (activeEvents.length === 1) {
       const e = activeEvents[0];
       if (e.lat != null && e.lng != null) {
-        map.current.setCenter([e.lng, e.lat])
+        map.current.setCenter([e.lng, e.lat]);
         map.current.setZoom(15);
       }
       return;
     }
 
     // Multiple events: fit all pins
-    map.current.fitBounds(bounds, {
-      padding: 50,
-      maxZoom: 15,
-      duration: 0, // no animation, just jump
-    });
+    if (activeEvents.length > 1) {
+      map.current.fitBounds(bounds, {
+        padding: 50,
+        maxZoom: 15,
+        duration: 0, // no animation, just jump
+      });
+    }
   }, [events, mapLoaded]);
 
   return (
