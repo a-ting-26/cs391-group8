@@ -645,19 +645,20 @@ export function StudentMap({ events }: { events: Event[] }) {
         const popup = new mapboxgl.Popup({ 
           offset: 25,
           className: "custom-popup",
-          maxWidth: "300px",
+          maxWidth: "350px",
           closeButton: true,
           closeOnClick: false
         }).setHTML(`
           <div style="
-            padding: 12px; 
+            padding: 16px; 
+            padding-right: 40px;
             font-family: system-ui, -apple-system, sans-serif;
           ">
             <strong style="
               font-size: 18px; 
               color: #065F46; 
               display: block; 
-              margin-bottom: 8px; 
+              margin-bottom: 10px; 
               line-height: 1.3;
               font-weight: 900;
               text-transform: uppercase;
