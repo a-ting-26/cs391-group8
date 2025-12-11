@@ -20,7 +20,7 @@ interface Event {
   organizer_name: string;
   location: string;
   location_label: string;
-  available_food?: string | null; // 👈 was string
+  available_food?: string | null;
   category: string;
   dietary_tags: string[];
   description?: string;
@@ -356,7 +356,6 @@ export default function StudentPage() {
     });
   }
 
-// ✅ Add this block here
 const filteredEvents = currentEvents.filter((event) => {
   const matchesSearch =
     searchQuery === "" ||
@@ -488,7 +487,7 @@ export function StudentMap({ events }: { events: Event[] }) {
         container: mapContainer.current,
         style: "mapbox://styles/mapbox/standard", // Mapbox Standard - 3D with dynamic lighting
         center: [-71.1054, 42.3505], // BU campus default
-        zoom: 16, // Slightly more zoomed in to show 3D buildings clearly
+        zoom: 13.5, // Less zoomed in for wider view
         pitch: 45, // Higher pitch for more dramatic 3D effect (0-60 degrees)
         bearing: 0, // Rotate map to the right (negative = clockwise/right)
         antialias: true, // Better rendering quality
@@ -503,9 +502,9 @@ export function StudentMap({ events }: { events: Event[] }) {
 
         try {
           // Ensure we're at a zoom level where 3D buildings are visible
-          // Mapbox Standard shows 3D buildings at zoom 15+, so ensure we're there
-          if (map.current.getZoom() < 15) {
-            map.current.zoomTo(15, { duration: 0 }); // Instant zoom to ensure 3D visibility
+          // Mapbox Standard shows 3D buildings at zoom 13.5+, so ensure we're there
+          if (map.current.getZoom() < 13.5) {
+            map.current.zoomTo(13.5, { duration: 0 }); // Instant zoom to ensure 3D visibility
           }
 
           // Mapbox Standard style has 3D buildings built-in
@@ -533,7 +532,7 @@ export function StudentMap({ events }: { events: Event[] }) {
           try {
             map.current.setConfigProperty("basemap", "showShadows", true);
           } catch (e) {
-            console.log("Could not enable shadows:", e);
+            // Shadows not available
           }
           
           // Disable landmarks to reduce clutter
@@ -542,7 +541,7 @@ export function StudentMap({ events }: { events: Event[] }) {
             map.current.setConfigProperty("basemap", "showPointOfInterestLabels", false);
             map.current.setConfigProperty("basemap", "showTransitLabels", false);
           } catch (e) {
-            console.log("Could not disable landmarks:", e);
+            // Landmark labels not available
           }
           
           // Also try to hide landmark layers directly
@@ -564,7 +563,7 @@ export function StudentMap({ events }: { events: Event[] }) {
               }
             }
           } catch (e) {
-            console.log("Could not hide landmark layers:", e);
+            // Could not hide landmark layers
           }
           
           // Optional: Add 3D terrain for enhanced elevation (if available)
@@ -572,9 +571,8 @@ export function StudentMap({ events }: { events: Event[] }) {
             map.current.setTerrain({ source: "mapbox-dem", exaggeration: 1.2 });
           }
           
-          console.log(`Map loaded with ${lightPreset} lighting preset at zoom ${map.current.getZoom()}`);
         } catch (e) {
-          console.log("Dynamic lighting setup:", e);
+          // Dynamic lighting setup error
         }
       });
 
@@ -589,7 +587,6 @@ export function StudentMap({ events }: { events: Event[] }) {
   // add markers + recenter whenever events change AND map is loaded
   useEffect(() => {
     if (!map.current || !mapLoaded) {
-      console.log("Map not ready:", { hasMap: !!map.current, mapLoaded });
       return;
     }
 
@@ -602,14 +599,12 @@ export function StudentMap({ events }: { events: Event[] }) {
       (e) => new Date(e.end_time) > now && e.lat != null && e.lng != null
     );
 
-    console.log("Adding markers:", {
-      totalEvents: events.length,
-      activeEvents: activeEvents.length,
-      eventsWithCoords: events.filter(e => e.lat != null && e.lng != null).length,
-    });
-
     if (activeEvents.length === 0) {
-      console.log("No active events with coordinates to display");
+      // When no events, ensure we're at the default zoom level
+      if (Math.abs(map.current.getZoom() - 13.5) > 0.1) {
+        map.current.setZoom(13.5);
+        map.current.setCenter([-71.1054, 42.3505]);
+      }
       return;
     }
 
@@ -714,7 +709,6 @@ export function StudentMap({ events }: { events: Event[] }) {
 
         markers.current.push(marker);
         bounds.extend([event.lng, event.lat]);
-        console.log("Added marker for:", event.name, "at", [event.lng, event.lat]);
       } catch (err) {
         console.error("Failed to add marker for event:", event.id, err);
       }
@@ -725,9 +719,9 @@ export function StudentMap({ events }: { events: Event[] }) {
       const e = activeEvents[0];
       if (e.lat != null && e.lng != null) {
         map.current.setCenter([e.lng, e.lat]);
-        // Keep zoom at 15 to maintain 3D building visibility (not too zoomed in)
-        if (map.current.getZoom() < 15) {
-          map.current.setZoom(15);
+        // Keep zoom at 13.5 to maintain 3D building visibility (not too zoomed in)
+        if (map.current.getZoom() < 13.5) {
+          map.current.setZoom(13.5);
         }
       }
       return;
@@ -740,9 +734,9 @@ export function StudentMap({ events }: { events: Event[] }) {
       const currentBearing = map.current.getBearing();
       
       map.current.fitBounds(bounds, {
-        padding: 50,
-        minZoom: 15, // Minimum zoom to ensure 3D buildings are visible
-        maxZoom: 18, // Don't zoom in too much
+        padding: 80, // More padding to keep zoom out
+        minZoom: 13.5, // Minimum zoom to ensure 3D buildings are visible
+        maxZoom: 15.5, // Limit max zoom to prevent too much zoom in
         duration: 0, // no animation, just jump
       });
       
