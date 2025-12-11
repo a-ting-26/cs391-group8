@@ -36,10 +36,10 @@ export default function StudentNavBar() {
     <nav className="sticky top-0 z-50 mx-auto flex w-full items-center justify-between border-b-[3px] border-emerald-900 bg-[#f9f8f4] px-6 py-5 backdrop-blur-0">
       <Link
         href="/landing"
-        className="text-3xl font-black uppercase tracking-widest text-emerald-900 transition-transform hover:scale-105"
+        className="text-3xl font-extrabold leading-[0.95] tracking-tight text-emerald-900 transition-transform hover:scale-105"
         style={{ fontFamily: "var(--font-display)" }}
       >
-        SparkBytes!
+        Spark!Bytes
       </Link>
       
       <div className="relative">

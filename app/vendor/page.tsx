@@ -121,7 +121,7 @@ export default function VendorPage() {
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1
-              className="text-4xl font-black uppercase tracking-wide text-emerald-900 mb-2"
+              className="text-4xl font-extrabold leading-[0.95] tracking-tight text-emerald-900 mb-2"
               style={{ fontFamily: "var(--font-display)" }}
             >
               My Events

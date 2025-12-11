@@ -55,7 +55,7 @@ export default function FeatureCarousel() {
             style={{ fontFamily: "var(--font-display)" }}
           >
             Spark!Bytes
-          </h2>
+        </h2>
           
           {/* Right line */}
           <div className="flex-1 h-[4px] bg-emerald-900/60" />
@@ -99,8 +99,8 @@ export default function FeatureCarousel() {
                   {/* Image */}
                   <ScaleIn delay={0.15} scaleFrom={0.85}>
                     <div className="flex h-[360px] w-[640px] items-center justify-center rounded-2xl bg-white/80 shadow-2xl md:h-[400px] md:w-[820px]">
-                      <Image src={s.img} alt="mock" width={160} height={40} className="opacity-80" />
-                    </div>
+                    <Image src={s.img} alt="mock" width={160} height={40} className="opacity-80" />
+                  </div>
                   </ScaleIn>
                   
                   {/* Description below image */}

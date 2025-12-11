@@ -355,8 +355,16 @@ export default function ProfilePage() {
       <NavBar />
 
       <main className="mx-auto max-w-5xl px-6 py-8">
+        <div className="mb-6">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-sm font-black uppercase tracking-wide text-emerald-900 hover:text-emerald-700 transition-colors"
+          >
+            <span className="text-lg">←</span> Back
+          </button>
+        </div>
         <h1
-          className="mb-8 text-4xl font-black uppercase tracking-wide text-emerald-900"
+          className="mb-8 text-4xl font-extrabold leading-[0.95] tracking-tight text-emerald-900"
           style={{ fontFamily: "var(--font-display)" }}
         >
           My Profile
@@ -468,7 +476,7 @@ export default function ProfilePage() {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         setStudentForm({ ...studentForm, display_name: e.target.value })
                       }
-                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-300"
+                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-900"
                       placeholder="Enter your display name"
                     />
                   </div>
@@ -490,7 +498,7 @@ export default function ProfilePage() {
                         onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                           setStudentForm({ ...studentForm, major: e.target.value })
                         }
-                        className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-300"
+                        className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-900"
                       >
                         <option value="">Select major</option>
                         {MAJOR_OPTIONS.map((major) => (
@@ -510,7 +518,7 @@ export default function ProfilePage() {
                         onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                           setStudentForm({ ...studentForm, year: e.target.value })
                         }
-                        className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-300"
+                        className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-900"
                       >
                         <option value="">Select year</option>
                         {YEAR_OPTIONS.map((year) => (
@@ -529,7 +537,7 @@ export default function ProfilePage() {
                     <textarea
                       value={studentForm.bio}
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setStudentForm({ ...studentForm, bio: e.target.value })}
-                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-300"
+                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-900"
                       rows={4}
                       placeholder="Tell us about yourself..."
                     />
@@ -599,7 +607,7 @@ export default function ProfilePage() {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         setVendorForm({ ...vendorForm, org_name: e.target.value })
                       }
-                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-300"
+                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-900"
                       placeholder="Enter organization name"
                       required
                     />
@@ -615,7 +623,7 @@ export default function ProfilePage() {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         setVendorForm({ ...vendorForm, contact_email: e.target.value })
                       }
-                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-300"
+                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-900"
                       placeholder="contact@bu.edu"
                       required
                     />
@@ -631,7 +639,7 @@ export default function ProfilePage() {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         setVendorForm({ ...vendorForm, website: e.target.value })
                       }
-                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-300"
+                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-900"
                       placeholder="https://example.org"
                     />
                   </div>
@@ -645,7 +653,7 @@ export default function ProfilePage() {
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                         setVendorForm({ ...vendorForm, description: e.target.value })
                       }
-                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-300"
+                      className="w-full px-4 py-3 border-[2px] rounded-[20px] text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 border-emerald-900"
                       rows={5}
                       placeholder="Tell students who you are, what events you run, and the kinds of food you'll post."
                       required
@@ -692,15 +700,15 @@ export default function ProfilePage() {
                 Account Information
               </h2>
               <div className="space-y-3">
-                <div className="flex justify-between py-2 border-b border-emerald-200">
+                <div className="flex justify-between py-2 border-b border-emerald-900">
                   <span className="font-black uppercase tracking-wide text-emerald-900">Member Since</span>
                   <span className="text-emerald-900">{formatDate(accountCreatedAt)}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-emerald-200">
+                <div className="flex justify-between py-2 border-b border-emerald-900">
                   <span className="font-black uppercase tracking-wide text-emerald-900">Email</span>
                   <span className="text-emerald-900">{email || "N/A"}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-emerald-200">
+                <div className="flex justify-between py-2 border-b border-emerald-900">
                   <span className="font-black uppercase tracking-wide text-emerald-900">Account Type</span>
                   <span className="text-emerald-900 uppercase">{userType || "N/A"}</span>
                 </div>
@@ -753,7 +761,7 @@ export default function ProfilePage() {
                           <Link
                             key={event.id}
                             href="/vendor"
-                            className="block p-4 rounded-lg border-2 border-emerald-200 hover:border-emerald-900 hover:bg-emerald-50 transition-all"
+                            className="block p-4 rounded-lg border-2 border-emerald-900 hover:border-emerald-900 hover:bg-emerald-50 transition-all"
                           >
                             <div className="flex justify-between items-start">
                               <div className="flex-1">

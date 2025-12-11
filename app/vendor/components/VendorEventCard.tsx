@@ -230,9 +230,12 @@ const VendorEventCard: React.FC<VendorEventCardProps> = ({
               <span className="text-xs font-semibold uppercase tracking-wide text-emerald-800">
                 {event.category}
               </span>
-              <span className="rounded-full bg-[#DBEAFE] px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-900">
-                ⏱️ {calculateTimeLeft(event.end_time)}
-              </span>
+              <div className="rounded-full bg-[#DBEAFE] border-[2px] border-blue-300 px-3 py-1 inline-flex items-center gap-2">
+                <span className="text-xs">⏱️</span>
+                <span className="text-[11px] font-bold uppercase tracking-wide text-emerald-900">
+                  {calculateTimeLeft(event.end_time)}
+                </span>
+              </div>
               <svg
                 className={`h-4 w-4 text-emerald-900 transition-transform ${
                   isExpanded ? "rotate-180" : ""
@@ -276,7 +279,7 @@ const VendorEventCard: React.FC<VendorEventCardProps> = ({
 
       {/* Expanded content */}
       {isExpanded && (
-        <div className="border-t border-emerald-200 px-4 pb-6 pt-4">
+        <div className="px-4 pb-6 pt-4">
           <div className="space-y-5">
             <div>
               <h5
@@ -301,46 +304,47 @@ const VendorEventCard: React.FC<VendorEventCardProps> = ({
                   {foods.map((food) => (
                     <div
                       key={food.id}
-                      className="rounded-[18px] border-[2px] border-emerald-200 bg-[#F0FDF4] p-3"
+                      className="rounded-[20px] border-[2px] border-emerald-300 bg-white px-4 py-4"
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <p className="text-sm font-bold text-emerald-900">
-                            {food.name}
-                          </p>
-                          <p className="text-xs text-emerald-700">
-                            {food.totalPortions - food.totalReserved} left • Max{" "}
-                            {food.perStudentLimit} per student
-                          </p>
-                          <p className="text-[11px] text-emerald-700 mt-1">
-                            Total: {food.totalPortions} • Reserved (active):{" "}
-                            {food.totalReserved}
-                          </p>
-                        </div>
+                      {/* Food Item Header */}
+                      <div className="mb-4 pb-3 border-b border-emerald-200">
+                        <p className="text-base font-bold text-emerald-900 mb-1">
+                          {food.name}
+                        </p>
+                        <p className="text-xs text-emerald-700 mb-1">
+                          {food.totalPortions - food.totalReserved} left • Max{" "}
+                          {food.perStudentLimit} per student
+                        </p>
+                        <p className="text-[11px] text-emerald-600">
+                          Total: {food.totalPortions} • Reserved (active):{" "}
+                          {food.totalReserved}
+                        </p>
                       </div>
 
                       {/* Reservations list */}
                       {food.reservations.length === 0 ? (
-                        <p className="text-xs text-emerald-700 mt-2">
-                          No reservations yet.
-                        </p>
+                        <div className="text-center py-4">
+                          <p className="text-xs text-emerald-600">
+                            No reservations yet.
+                          </p>
+                        </div>
                       ) : (
-                        <div className="mt-2 space-y-2">
+                        <div className="space-y-2.5">
                           {food.reservations.map((r) => (
                             <div
                               key={r.id}
-                              className="flex flex-col gap-2 rounded-[12px] border border-emerald-200 bg-white px-3 py-2 md:flex-row md:items-center md:justify-between"
+                              className="flex flex-col gap-3 rounded-[16px] border-[2px] border-emerald-300 bg-emerald-50/50 px-4 py-3 md:flex-row md:items-center md:justify-between"
                             >
-                              <div>
-                                <p className="text-xs font-semibold text-emerald-900">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-bold text-emerald-900 mb-0.5">
                                   {r.studentName}
                                 </p>
                                 {r.studentEmail && (
-                                  <p className="text-[11px] text-emerald-700">
+                                  <p className="text-xs text-emerald-700 mb-1.5">
                                     {r.studentEmail}
                                   </p>
                                 )}
-                                <p className="text-[11px] text-emerald-700 mt-1">
+                                <p className="text-xs text-emerald-600">
                                   Reserved: {r.quantity} •{" "}
                                   {new Date(
                                     r.created_at
@@ -352,10 +356,10 @@ const VendorEventCard: React.FC<VendorEventCardProps> = ({
                                   })}
                                 </p>
                               </div>
-                              <div className="flex flex-col items-end gap-2">
+                              <div className="flex flex-col items-end gap-2 md:flex-shrink-0">
                                 <span
                                   className={
-                                    "rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wide " +
+                                    "rounded-full border-[2px] px-3 py-1.5 text-xs font-bold uppercase tracking-wide whitespace-nowrap " +
                                     statusClasses(r.status)
                                   }
                                 >
@@ -364,7 +368,7 @@ const VendorEventCard: React.FC<VendorEventCardProps> = ({
 
                                 {!hasEnded &&
                                   r.status === "in_progress" && (
-                                    <div className="flex gap-2">
+                                    <div className="flex gap-2 w-full md:w-auto">
                                       <button
                                         type="button"
                                         onClick={() =>
@@ -374,10 +378,10 @@ const VendorEventCard: React.FC<VendorEventCardProps> = ({
                                           )
                                         }
                                         disabled={updatingId === r.id}
-                                        className={`rounded-full border-[2px] border-emerald-900 px-3 py-1 text-[10px] font-black uppercase tracking-wide shadow-[0_2px_0_0_rgba(16,78,61,0.4)] transition ${
+                                        className={`flex-1 md:flex-none rounded-full border-[2px] border-emerald-900 px-4 py-1.5 text-xs font-black uppercase tracking-wide shadow-[0_2px_0_0_rgba(16,78,61,0.4)] transition ${
                                           updatingId === r.id
                                             ? "bg-emerald-100 cursor-not-allowed"
-                                            : "bg-[#BBF7D0] text-emerald-900 hover:-translate-y-[1px]"
+                                            : "bg-[#BBF7D0] text-emerald-900 hover:-translate-y-[1px] hover:shadow-[0_3px_0_0_rgba(16,78,61,0.5)] active:translate-y-0"
                                         }`}
                                       >
                                         {updatingId === r.id
@@ -393,10 +397,10 @@ const VendorEventCard: React.FC<VendorEventCardProps> = ({
                                           )
                                         }
                                         disabled={updatingId === r.id}
-                                        className={`rounded-full border-[2px] border-yellow-600 px-3 py-1 text-[10px] font-black uppercase tracking-wide shadow-[0_2px_0_0_rgba(202,138,4,0.4)] transition ${
+                                        className={`flex-1 md:flex-none rounded-full border-[2px] border-yellow-600 px-4 py-1.5 text-xs font-black uppercase tracking-wide shadow-[0_2px_0_0_rgba(202,138,4,0.4)] transition ${
                                           updatingId === r.id
                                             ? "bg-yellow-100 cursor-not-allowed"
-                                            : "bg-white text-yellow-800 hover:-translate-y-[1px]"
+                                            : "bg-white text-yellow-800 hover:-translate-y-[1px] hover:shadow-[0_3px_0_0_rgba(202,138,4,0.5)] active:translate-y-0"
                                         }`}
                                       >
                                         {updatingId === r.id
@@ -442,7 +446,7 @@ const VendorEventCard: React.FC<VendorEventCardProps> = ({
                   {event.dietary_tags.map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-full bg-[#BBF7D0] px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-900"
+                      className="rounded-full bg-[#BBF7D0] border-[2px] border-emerald-300 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-emerald-900"
                     >
                       {tag}
                     </span>

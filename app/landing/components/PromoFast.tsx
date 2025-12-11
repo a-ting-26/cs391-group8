@@ -12,18 +12,18 @@ export default function PromoFast() {
         <div className="-rotate-2 text-center">
           <SlideIn direction="left" delay={0}>
             <h2 className="font-extrabold leading-[0.9] text-emerald-900" style={{ fontFamily: "var(--font-display)" }}>
-              <span className="block text-[12vw] md:text-[8vw]">FIND FREE FOOD FAST</span>
+          <span className="block text-[12vw] md:text-[8vw]">FIND FREE FOOD FAST</span>
             </h2>
           </SlideIn>
           <SlideIn direction="left" delay={0.1}>
             <h2 className="font-extrabold leading-[0.9] text-emerald-900" style={{ fontFamily: "var(--font-display)" }}>
-              <span className="block text-[12vw] md:text-[8vw]">FIND FREE FOOD FAST</span>
+          <span className="block text-[12vw] md:text-[8vw]">FIND FREE FOOD FAST</span>
             </h2>
           </SlideIn>
           <SlideIn direction="left" delay={0.2}>
             <h2 className="font-extrabold leading-[0.9] text-emerald-900" style={{ fontFamily: "var(--font-display)" }}>
-              <span className="block text-[12vw] md:text-[8vw]">FIND FREE FOOD FAST</span>
-            </h2>
+          <span className="block text-[12vw] md:text-[8vw]">FIND FREE FOOD FAST</span>
+        </h2>
           </SlideIn>
         </div>
       </div>

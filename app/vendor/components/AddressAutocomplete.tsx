@@ -87,7 +87,7 @@ export default function AddressAutocomplete({
           setIsOpen(true);
         }}
         placeholder="e.g., 775 Commonwealth Ave, Boston"
-        className="w-full rounded-[20px] border-[2px] border-emerald-300 px-4 py-3 text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        className="w-full rounded-[20px] border-[2px] border-emerald-900 px-4 py-3 text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
       />
       {loading && (
         <span className="absolute right-4 top-3 text-xs text-emerald-500">
@@ -95,7 +95,7 @@ export default function AddressAutocomplete({
         </span>
       )}
       {isOpen && suggestions.length > 0 && (
-        <div className="absolute z-20 mt-1 max-h-56 w-full overflow-auto rounded-[16px] border border-emerald-200 bg-white shadow-lg">
+        <div className="absolute z-20 mt-1 max-h-56 w-full overflow-auto rounded-[16px] border-[2px] border-emerald-900 bg-white shadow-lg">
           {suggestions.map((s) => (
             <button
               key={s.id}

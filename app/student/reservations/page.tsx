@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import StudentNavBar from "../components/StudentNavBar";
 
 interface ReservationItem {
@@ -58,6 +59,7 @@ function statusClasses(status: string) {
 }
 
 export default function StudentReservationsPage() {
+  const router = useRouter();
   const [reservations, setReservations] = useState<ReservationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -140,8 +142,14 @@ export default function StudentReservationsPage() {
 
       <main className="mx-auto max-w-5xl px-6 py-8">
         <div className="mb-6">
+          <button
+            onClick={() => router.back()}
+            className="mb-4 flex items-center gap-2 text-sm font-black uppercase tracking-wide text-emerald-900 hover:text-emerald-700 transition-colors"
+          >
+            <span className="text-lg">←</span> Back
+          </button>
           <h1
-            className="mb-2 text-3xl font-black uppercase tracking-wide text-emerald-900"
+            className="mb-2 text-3xl font-extrabold leading-[0.95] tracking-tight text-emerald-900"
             style={{ fontFamily: "var(--font-display)" }}
           >
             My Reservations

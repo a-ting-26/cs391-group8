@@ -303,8 +303,14 @@ export default function CreateEventPage() {
 
       <main className="mx-auto max-w-4xl px-6 py-8">
         <div className="mb-8">
+          <button
+            onClick={() => router.back()}
+            className="mb-4 flex items-center gap-2 text-sm font-black uppercase tracking-wide text-emerald-900 hover:text-emerald-700 transition-colors"
+          >
+            <span className="text-lg">←</span> Back
+          </button>
           <h1
-            className="mb-2 text-4xl font-black uppercase tracking-wide text-emerald-900"
+            className="mb-2 text-4xl font-extrabold leading-[0.95] tracking-tight text-emerald-900"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Create New Event
@@ -321,7 +327,7 @@ export default function CreateEventPage() {
               <p className="mb-1 text-xs font-black uppercase tracking-wide text-emerald-900">
                 Organizer
               </p>
-              <div className="rounded-[20px] border-[2px] border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900">
+              <div className="rounded-[20px] border-[2px] border-emerald-900 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900">
                 {loadingOrganizer
                   ? "Loading organizer..."
                   : organizerName || "Unknown organizer"}
@@ -349,7 +355,7 @@ export default function CreateEventPage() {
                 onChange={handleChange}
                 placeholder="e.g., Late Night GSU Snack Share"
                 className={`w-full rounded-[20px] border-[2px] px-4 py-3 text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                  errors.eventName ? "border-red-500" : "border-emerald-300"
+                  errors.eventName ? "border-red-500" : "border-emerald-900"
                 }`}
               />
               {errors.eventName && (
@@ -373,7 +379,7 @@ export default function CreateEventPage() {
                 value={formData.location}
                 onChange={handleChange}
                 className={`w-full rounded-[20px] border-[2px] px-4 py-3 text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                  errors.location ? "border-red-500" : "border-emerald-300"
+                  errors.location ? "border-red-500" : "border-emerald-900"
                 }`}
               >
                 <option value="">Select a location</option>
@@ -426,7 +432,7 @@ export default function CreateEventPage() {
                 value={formData.category}
                 onChange={handleChange}
                 className={`w-full rounded-[20px] border-[2px] px-4 py-3 text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                  errors.category ? "border-red-500" : "border-emerald-300"
+                  errors.category ? "border-red-500" : "border-emerald-900"
                 }`}
               >
                 <option value="">Select a category</option>
@@ -455,7 +461,7 @@ export default function CreateEventPage() {
                     className={`rounded-full border-[2px] px-4 py-2 text-sm font-bold uppercase tracking-wide transition-all ${
                       formData.dietaryTags.includes(tag)
                         ? "bg-[#BBF7D0] border-emerald-900 text-emerald-900 shadow-[0_3px_0_0_rgba(16,78,61,0.3)]"
-                        : "bg-white border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                        : "bg-white border-emerald-900 text-emerald-700 hover:bg-emerald-50"
                     }`}
                   >
                     {tag}
@@ -479,7 +485,7 @@ export default function CreateEventPage() {
                 onChange={handleChange}
                 placeholder="Add more details about your event..."
                 rows={4}
-                className="w-full resize-none rounded-[20px] border-[2px] border-emerald-300 px-4 py-3 text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full resize-none rounded-[20px] border-[2px] border-emerald-900 px-4 py-3 text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
 
@@ -498,7 +504,7 @@ export default function CreateEventPage() {
                 value={formData.startTime}
                 onChange={handleChange}
                 className={`w-full rounded-[20px] border-[2px] px-4 py-3 text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                  errors.startTime ? "border-red-500" : "border-emerald-300"
+                  errors.startTime ? "border-red-500" : "border-emerald-900"
                 }`}
               />
               {errors.startTime && (
@@ -521,7 +527,7 @@ export default function CreateEventPage() {
                 value={formData.endTime}
                 onChange={handleChange}
                 className={`w-full rounded-[20px] border-[2px] px-4 py-3 text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
-                  errors.endTime ? "border-red-500" : "border-emerald-300"
+                  errors.endTime ? "border-red-500" : "border-emerald-900"
                 }`}
               />
               {errors.endTime && (
@@ -585,7 +591,7 @@ export default function CreateEventPage() {
                             updateFoodItem(item.id, "name", e.target.value)
                           }
                           placeholder="e.g., Cheese Pizza"
-                          className="w-full rounded-[14px] border-[2px] border-emerald-300 px-3 py-2 text-sm text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="w-full rounded-[14px] border-[2px] border-emerald-900 px-3 py-2 text-sm text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         />
                       </div>
                       <div>
@@ -603,7 +609,7 @@ export default function CreateEventPage() {
                               e.target.value
                             )
                           }
-                          className="w-full rounded-[14px] border-[2px] border-emerald-300 px-3 py-2 text-sm text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="w-full rounded-[14px] border-[2px] border-emerald-900 px-3 py-2 text-sm text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         />
                       </div>
                       <div>
@@ -621,7 +627,7 @@ export default function CreateEventPage() {
                               e.target.value
                             )
                           }
-                          className="w-full rounded-[14px] border-[2px] border-emerald-300 px-3 py-2 text-sm text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="w-full rounded-[14px] border-[2px] border-emerald-900 px-3 py-2 text-sm text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         />
                       </div>
                     </div>
