@@ -734,12 +734,21 @@ export function StudentMap({ events }: { events: Event[] }) {
 
     // Multiple events: fit all pins but ensure minimum zoom for 3D
     if (activeEvents.length > 1) {
+      // Preserve the current pitch and bearing when fitting bounds
+      const currentPitch = map.current.getPitch();
+      const currentBearing = map.current.getBearing();
+      
       map.current.fitBounds(bounds, {
         padding: 50,
         minZoom: 15, // Minimum zoom to ensure 3D buildings are visible
         maxZoom: 18, // Don't zoom in too much
         duration: 0, // no animation, just jump
       });
+      
+      // After fitBounds, restore the 3D pitch and bearing
+      // fitBounds resets pitch to 0, so we need to set it back
+      map.current.setPitch(currentPitch || 45);
+      map.current.setBearing(currentBearing || 0);
     }
   }, [events, mapLoaded]);
 
