@@ -11,25 +11,25 @@ export default function FeatureCarousel() {
         title: "FIND FREE FOOD NEAR YOU", 
         description: "Browse events happening near you and discover free food opportunities on campus.",
         bg: "#F9CFE1", 
-        img: "/next.svg" 
+        img: "/images/carousel/slide-1.png" 
       },
       { 
         title: "FILTER BY PREFERENCES", 
         description: "Set your dietary preferences and find events that match your needs.",
         bg: "#A5F3FC", 
-        img: "/next.svg" 
+        img: "/images/carousel/slide-2.png" 
       },
       { 
         title: "CLAIM AND PICK UP", 
         description: "Reserve your spot at events and pick up free food when it's ready.",
         bg: "#FEF59E", 
-        img: "/next.svg" 
+        img: "/images/carousel/slide-3.png" 
       },
       { 
         title: "REDUCE WASTE TOGETHER", 
         description: "Help reduce food waste by connecting with events and sharing surplus food.",
         bg: "#E6D5FF", 
-        img: "/next.svg" 
+        img: "/images/carousel/slide-4.png" 
       },
     ],
     []
@@ -98,9 +98,16 @@ export default function FeatureCarousel() {
                   
                   {/* Image */}
                   <ScaleIn delay={0.15} scaleFrom={0.85}>
-                    <div className="flex h-[360px] w-[640px] items-center justify-center rounded-2xl bg-white/80 shadow-2xl md:h-[400px] md:w-[820px]">
-                    <Image src={s.img} alt="mock" width={160} height={40} className="opacity-80" />
-                  </div>
+                    <div className="flex h-[360px] w-[640px] items-center justify-center rounded-2xl bg-white/80 shadow-2xl overflow-hidden border-[3px] border-emerald-900 md:h-[400px] md:w-[820px]">
+                      <Image 
+                        src={s.img} 
+                        alt={s.title} 
+                        width={820} 
+                        height={400} 
+                        className="object-cover w-full h-full"
+                        unoptimized
+                      />
+                    </div>
                   </ScaleIn>
                   
                   {/* Description below image */}
