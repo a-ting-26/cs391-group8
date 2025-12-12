@@ -17,8 +17,7 @@
 9. [Getting Started](#-getting-started)
 10. [Testing Plan](#-testing-plan)
 11. [Documentation Plan](#-documentation-plan)
-12. [Team Organization](#-team-organization)
-13. [Future Enhancements](#-future-enhancements)
+12. [Future Enhancements](#-future-enhancements)
 
 ---
 
@@ -364,83 +363,29 @@ if (!user.email?.toLowerCase().endsWith("@bu.edu")) {
 
 ### Agile Methodology
 
+The project followed Agile development principles with the following components:
+
 #### 3x3 Agile Components
 
-1. **User Stories**:
-   - Written from user perspectives
-   - Acceptance criteria defined
-   - Prioritized in backlog
-   - Examples:
-     - "As a student, I want to search for events by dietary restrictions so I can find food that meets my needs"
-     - "As a vendor, I want to create events with multiple food items so I can list all available food"
-     - "As an admin, I want to approve vendor applications so I can control who can post events"
-
-2. **Sprints**:
-   - Time-boxed iterations (typically 1-2 weeks)
-   - Sprint planning meetings
-   - Daily stand-ups
-   - Sprint reviews and retrospectives
-
-3. **Stand-ups**:
-   - Daily team meetings
-   - What did I do yesterday?
-   - What will I do today?
-   - Are there any blockers?
+1. **User Stories**: Features were defined from user perspectives with acceptance criteria
+2. **Sprints**: Development was organized into time-boxed iterations
+3. **Stand-ups**: Regular team meetings to track progress and identify blockers
 
 ### Development Workflow
 
-1. **Sprint Planning**:
-   - Review backlog
-   - Select user stories for sprint
-   - Break down into tasks
-   - Assign tasks to team members
+The team followed a standard development workflow:
+1. **Planning**: User story definition and task breakdown
+2. **Development**: Feature implementation using feature branches
+3. **Testing**: Manual testing of implemented features
+4. **Integration**: Code reviews and merging to main branch
 
-2. **Development**:
-   - Create feature branches
-   - Implement features
-   - Write/update tests
-   - Code reviews
+### Project Management
 
-3. **Testing**:
-   - Manual testing of features
-   - Integration testing
-   - User acceptance testing
-
-4. **Deployment**:
-   - Merge to main branch
-   - Deploy to staging
-   - Final testing
-   - Deploy to production
-
-### Notion Usage
-
-**Notion** was used as the primary project management tool for:
-
-1. **Project Planning**:
-   - User story backlog
-   - Sprint planning documents
-   - Roadmap and milestones
-
-2. **Task Management**:
-   - Task boards (To Do, In Progress, Done)
-   - Assignees and due dates
-   - Task dependencies
-
-3. **Documentation**:
-   - Meeting notes
-   - Design decisions
-   - API documentation drafts
-   - Database schema notes
-
-4. **Collaboration**:
-   - Team wiki
-   - Shared knowledge base
-   - Discussion threads
-
-5. **Tracking**:
-   - Burndown charts
-   - Velocity tracking
-   - Sprint retrospectives
+The team used project management tools (such as Notion, GitHub Issues, or similar) for:
+- Task tracking and assignment
+- User story management
+- Sprint planning and tracking
+- Team communication and documentation
 
 ---
 
@@ -463,9 +408,9 @@ if (!user.email?.toLowerCase().endsWith("@bu.edu")) {
 
 ### Project Management
 
-- **Notion**: Project management, documentation, task tracking
 - **Git**: Version control and collaboration
 - **GitHub/GitLab**: Code repository hosting
+- **Project Management Tool**: Used for task tracking and team coordination
 
 ### External Services
 
@@ -854,97 +799,32 @@ npm run lint
 
 ### Testing Strategy
 
-While automated test files are not present in the codebase, the following testing approach was used:
+While automated test files are not present in the codebase, manual testing was performed during development. The following areas were tested:
 
 #### 1. Manual Testing
 
-**Unit Testing** (Component Level):
-- ✅ Individual component rendering
-- ✅ Props validation
-- ✅ State management
-- ✅ Event handlers
+**Feature Testing**:
+- Authentication flows (signup, login, logout)
+- Event creation and management
+- Reservation system functionality
+- Admin approval workflow
+- Map functionality and geocoding
+- Search and filtering capabilities
 
-**Integration Testing** (Feature Level):
-- ✅ Authentication flows (signup, login, logout)
-- ✅ Event creation workflow
-- ✅ Reservation system
-- ✅ Admin approval workflow
-- ✅ Map functionality
-- ✅ Search and filtering
+**User Flow Testing**:
+- Student workflows: Sign up → Browse events → Reserve food → View reservations
+- Vendor workflows: Apply → Get approved → Create event → Manage reservations
+- Admin workflows: Review applications → Approve/reject → Monitor vendors
 
-**End-to-End Testing** (User Flows):
-- ✅ Student: Sign up → Browse events → Reserve food → View reservations
-- ✅ Vendor: Apply → Get approved → Create event → Manage reservations
-- ✅ Admin: Review applications → Approve/reject → Monitor vendors
+#### 2. Key Test Scenarios
 
-#### 2. Test Scenarios
-
-**Authentication**:
-- [x] Student signup with BU email
-- [x] Student signup with non-BU email (should fail)
-- [x] Vendor signup and application
-- [x] Login/logout functionality
-- [x] Session persistence
-- [x] Role-based redirects
-
-**Event Management**:
-- [x] Create event with all required fields
-- [x] Create event with missing fields (should fail)
-- [x] Add multiple food items
-- [x] Close event early
-- [x] View event history
-
-**Reservations**:
-- [x] Reserve food within capacity limits
-- [x] Reserve food exceeding capacity (should fail)
-- [x] Reserve food exceeding per-student limit (should fail)
-- [x] Reserve food for ended event (should fail)
-- [x] Cancel reservation
-- [x] Update reservation status (vendor)
-
-**Search & Filtering**:
-- [x] Search by event name
-- [x] Filter by dietary restrictions
-- [x] Filter by location
-- [x] Filter by availability
-- [x] Sort by different criteria
-- [x] Combine multiple filters
-
-**Map View**:
-- [x] Map loads with correct center
-- [x] Markers appear for active events
-- [x] Popup shows event details
-- [x] Map adjusts bounds for multiple events
-- [x] Geocoding works for addresses
-
-**Admin Functions**:
-- [x] View pending applications
-- [x] Approve vendor application
-- [x] Reject vendor application
-- [x] Revoke organizer privileges
-- [x] Access control (non-admins cannot access)
-
-#### 3. Browser Testing
-
-- [x] Chrome/Chromium
-- [x] Firefox
-- [x] Safari
-- [x] Mobile browsers (iOS Safari, Chrome Mobile)
-
-#### 4. Performance Testing
-
-- [x] Page load times
-- [x] API response times
-- [x] Map rendering performance
-- [x] Large dataset handling
-
-#### 5. Security Testing
-
-- [x] Unauthorized access attempts
-- [x] Cross-role access attempts
-- [x] Input validation
-- [x] SQL injection attempts (handled by Supabase)
-- [x] XSS attempts
+The following scenarios were verified during development:
+- Authentication with BU email validation
+- Event creation with required fields validation
+- Reservation capacity limits and per-student limits
+- Search and filtering functionality
+- Map view with event markers
+- Admin access control and vendor approval workflow
 
 ### Future Testing Improvements
 
@@ -978,7 +858,7 @@ If more time were available, we would implement:
    - API documentation
    - Getting started guide
    - Testing plan
-   - Team organization
+   - Documentation plan
 
 2. **Code Comments**:
    - JSDoc-style comments on API routes
@@ -989,142 +869,33 @@ If more time were available, we would implement:
    - Type definitions serve as documentation
    - Interface definitions for data structures
 
-### Documentation Structure
-
-#### 1. User Documentation
-- **User Guide**: Step-by-step instructions for each user role
-- **FAQ**: Common questions and answers
-- **Troubleshooting**: Common issues and solutions
-
-#### 2. Developer Documentation
-- **API Reference**: Complete API documentation (included in this README)
-- **Architecture Guide**: Detailed system architecture
-- **Database Schema**: Complete schema documentation
-- **Contributing Guide**: How to contribute to the project
-
-#### 3. Project Documentation
-- **Project Plan**: Initial requirements and planning
-- **Design Decisions**: Rationale behind technical choices
-- **Meeting Notes**: Key decisions and discussions
-- **Sprint Reports**: Progress and retrospectives
-
 ### Documentation Tools Used
 
-- **Notion**: Primary documentation platform
-  - Project wiki
-  - Meeting notes
-  - Design documents
-  - User stories
-- **README.md**: Code repository documentation
-- **Code Comments**: Inline documentation
-- **TypeScript**: Self-documenting code through types
+- **README.md**: Code repository documentation (this file)
+- **Code Comments**: Inline documentation and JSDoc-style comments on API routes
+- **TypeScript**: Self-documenting code through type definitions
 
 ### Future Documentation Improvements
 
-1. **API Documentation**:
-   - OpenAPI/Swagger specification
+1. **User Documentation**:
+   - User guide with step-by-step instructions for each user role
+   - FAQ with common questions and answers
+   - Troubleshooting guide for common issues and solutions
+
+2. **Developer Documentation**:
+   - Architecture guide with detailed system architecture
+   - Database schema documentation
+   - Contributing guide for new developers
+   - OpenAPI/Swagger specification for API
    - Interactive API explorer
-   - Example requests/responses
-
-2. **User Guides**:
-   - Video tutorials
-   - Screenshot guides
-   - Interactive walkthroughs
-
-3. **Developer Guides**:
    - Setup guides for different environments
    - Deployment guides
-   - Troubleshooting guides
 
----
-
-## 👥 Team Organization
-
-### Team Structure
-
-**Group 8** - Spark!Bytes Development Team
-
-### Roles & Responsibilities
-
-#### Scrum Master
-- **Responsibilities**:
-  - Facilitate sprint planning and retrospectives
-  - Remove blockers and impediments
-  - Ensure team communication
-  - Track sprint progress
-  - Coordinate with stakeholders
-- **Key Learnings**:
-  - Importance of clear communication
-  - Balancing team autonomy with guidance
-  - Adapting processes to team needs
-  - Managing conflicting priorities
-  - Facilitating productive meetings
-
-#### Frontend Developers
-- **Responsibilities**:
-  - Implement UI components
-  - Create responsive designs
-  - Integrate with API endpoints
-  - Optimize user experience
-  - Ensure accessibility
-
-#### Backend Developers
-- **Responsibilities**:
-  - Design and implement API routes
-  - Database schema design
-  - Authentication and authorization
-  - Business logic implementation
-  - API documentation
-
-#### Full-Stack Developers
-- **Responsibilities**:
-  - Work across frontend and backend
-  - Integration work
-  - End-to-end feature implementation
-  - Troubleshooting cross-layer issues
-
-### Team Collaboration
-
-#### Communication
-- **Daily Stand-ups**: Quick status updates
-- **Sprint Planning**: Plan upcoming work
-- **Sprint Reviews**: Demo completed work
-- **Retrospectives**: Improve processes
-- **Notion**: Asynchronous communication and documentation
-
-#### Code Collaboration
-- **Git Workflow**: Feature branches, code reviews, merge to main
-- **Code Reviews**: Peer review before merging
-- **Pair Programming**: For complex features
-- **Knowledge Sharing**: Regular tech talks and documentation
-
-#### Task Management
-- **Notion Boards**: Visual task tracking
-- **User Stories**: Feature breakdown
-- **Sprint Backlog**: Prioritized work items
-- **Burndown Charts**: Progress tracking
-
-### Teamwork Highlights
-
-1. **Clear Role Definitions**: Each team member had clear responsibilities
-2. **Regular Communication**: Daily stand-ups kept everyone aligned
-3. **Collaborative Problem Solving**: Complex issues solved together
-4. **Knowledge Sharing**: Team members shared expertise
-5. **Adaptive Process**: Team adjusted processes based on what worked
-
-### Challenges & Solutions
-
-**Challenge**: Coordinating work across different features
-- **Solution**: Clear user story breakdown and regular communication
-
-**Challenge**: Managing dependencies between frontend and backend
-- **Solution**: API contracts defined early, mock data for parallel development
-
-**Challenge**: Balancing feature development with testing
-- **Solution**: Test-as-you-go approach, manual testing checklists
-
-**Challenge**: Time constraints
-- **Solution**: Prioritized MVP features, deferred nice-to-haves
+3. **Project Documentation**:
+   - Project plan documentation
+   - Design decisions rationale
+   - Meeting notes archive
+   - Sprint reports and retrospectives
 
 ---
 
