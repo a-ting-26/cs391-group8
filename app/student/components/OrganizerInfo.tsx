@@ -5,7 +5,7 @@ interface Organizer {
   id: number;
   name: string;
   location: string;
-  locationLabel: string;
+  locationLabel?: string;
   availableFood: string;
   timeLeft: string;
   category: string;

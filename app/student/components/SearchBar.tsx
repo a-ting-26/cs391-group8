@@ -90,7 +90,10 @@ export default function SearchBar({
           label="Availability"
           options={availabilityOptions}
           value={availability}
-          onChange={onAvailabilityChange}
+          onChange={(value) => {
+            const v = Array.isArray(value) ? value[0] ?? "" : value;
+            onAvailabilityChange(v);
+          }}
           placeholder="All Availability"
           color="bg-[#FDE68A]"
         />
@@ -98,7 +101,7 @@ export default function SearchBar({
           label="Dietary"
           options={dietaryOptions}
           value={dietary}
-          onChange={onDietaryChange}
+          onChange={(value) => onDietaryChange(Array.isArray(value) ? value : [value])}
           placeholder="All Dietary"
           multiSelect={true}
           color="bg-[#DBEAFE]"
@@ -107,7 +110,7 @@ export default function SearchBar({
           label="Location"
           options={locationOptions}
           value={location}
-          onChange={onLocationChange}
+          onChange={(value) => onLocationChange(Array.isArray(value) ? value[0] ?? "" : value)}
           placeholder="All Locations"
           color="bg-[#BBF7D0]"
         />
@@ -115,7 +118,7 @@ export default function SearchBar({
           label="Sorting"
           options={sortingOptions}
           value={sorting}
-          onChange={onSortingChange}
+          onChange={(value) => onSortingChange(Array.isArray(value) ? value[0] ?? "" : value)}
           placeholder="Default"
           color="bg-[#FFD6E7]"
         />

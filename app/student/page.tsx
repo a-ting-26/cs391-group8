@@ -390,17 +390,21 @@ const filteredEvents = currentEvents.filter((event) => {
       <main className="mx-auto max-w-7xl px-6 py-8">
         {/* Top Section - Search and Filters */}
         <div className="mb-8">
-          <SearchBar
+        <SearchBar
             searchQuery={searchQuery}
             onSearchChange={handleSearchChange}
             availability={availability}
-            onAvailabilityChange={setAvailability}
+            onAvailabilityChange={(value) =>
+              setAvailability(Array.isArray(value) ? value[0] ?? "" : value)
+            }
             dietary={dietary}
-            onDietaryChange={setDietary}
+            onDietaryChange={(value) => setDietary(Array.isArray(value) ? value : [value])}
             location={location}
             onLocationChange={setLocation}
             sorting={sorting}
-            onSortingChange={setSorting}
+            onSortingChange={(value) =>
+              setSorting(Array.isArray(value) ? value[0] ?? "" : value)
+            }
           />
         </div>
 
